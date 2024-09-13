@@ -1,0 +1,241 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.beta.kubernetes.io/alibaba-cloud-loadbalancer-spec: slb.s1.small
+  creationTimestamp: '2024-02-09T15:00:18Z'
+  finalizers:
+    - service.k8s.alibaba/resources
+  labels:
+    service.beta.kubernetes.io/hash: d450e52fdc5425b11368ad4863c5906015e093e930c09681dfa3825b
+    service.k8s.alibaba/loadbalancer-id: lb-2zeqw7vmahyhwj2j93oic
+  managedFields:
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:finalizers':
+            .: {}
+            'v:"service.k8s.alibaba/resources"': {}
+      manager: cloud-controller-manager
+      operation: Update
+      time: '2024-02-09T15:00:18Z'
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:labels':
+            .: {}
+            'f:service.beta.kubernetes.io/hash': {}
+            'f:service.k8s.alibaba/loadbalancer-id': {}
+        'f:status':
+          'f:loadBalancer':
+            'f:ingress': {}
+      manager: cloud-controller-manager
+      operation: Update
+      subresource: status
+      time: '2024-02-09T15:00:27Z'
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            .: {}
+            'f:service.beta.kubernetes.io/alibaba-cloud-loadbalancer-spec': {}
+        'f:spec':
+          'f:allocateLoadBalancerNodePorts': {}
+          'f:externalTrafficPolicy': {}
+          'f:internalTrafficPolicy': {}
+          'f:ipFamilyPolicy': {}
+          'f:ports':
+            .: {}
+            'k:{"port":8000,"protocol":"TCP"}':
+              .: {}
+              'f:port': {}
+              'f:protocol': {}
+              'f:targetPort': {}
+          'f:selector': {}
+          'f:sessionAffinity': {}
+          'f:type': {}
+      manager: ACK-Console Apache-HttpClient
+      operation: Update
+      time: '2024-02-09T15:02:58Z'
+  name: puddle
+  namespace: default
+  resourceVersion: '264518488'
+  uid: 07a1c97a-010d-4b22-b835-cc7a8eb111e9
+spec:
+  allocateLoadBalancerNodePorts: true
+  clusterIP: 172.21.8.4
+  clusterIPs:
+    - 172.21.8.4
+  externalTrafficPolicy: Local
+  healthCheckNodePort: 31010
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - nodePort: 31160
+      port: 8000
+      protocol: TCP
+      targetPort: 8000
+  selector:
+    app: puddle
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer:
+    ingress:
+      - ip: 8.147.134.250
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+use k8s_openapi::api::core::v1::Pod;
+use serde_json::json;
+
+use kube::{
+    api::{Api, DeleteParams, ListParams, Patch, PatchParams, PostParams, ResourceExt},
+    runtime::wait::{await_condition, conditions::is_pod_running},
+    Client,
+};
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    let client = Client::try_default().await?;
+    let pods: Api<Pod> = Api::default_namespaced(client);
+
+    // Create Pod blog
+    println!("Creating Pod instance puddle");
+    let p: Pod = serde_json::from_value(json!({
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "metadata": { 
+            "labels": { 
+                "app": "puddle"
+            },
+            "name": "puddle"
+        },
+        "spec": {
+            "containers": [{
+              "name": "puddle",
+              "image": "registry.cn-beijing.aliyuncs.com/puddle/puddle:0.0.1",
+              "imagePullPolicy": "Always",
+              "ports": [{
+                "containerPort": 8000,
+                "protocol": "TCP"
+              }],
+              "resources": {
+                "requests": {
+                  "memory": "64Mi",
+                  "cpu": "250m"
+                },
+                "limits": {
+                  "memory": "128Mi",
+                  "cpu": "500m"
+                }
+              }
+            }],
+        }
+    }))?;
+
+    let pp = PostParams::default();
+    match pods.create(&pp, &p).await {
+        Ok(o) => {
+            let name = o.name_any();
+            assert_eq!(p.name_any(), name);
+            println!("Created {}", name);
+        }
+        Err(kube::Error::Api(ae)) => assert_eq!(ae.code, 409), // if you skipped delete, for instance
+        Err(e) => return Err(e.into()),                        // any other case is probably bad
+    }
+
+    // Watch it phase for a few seconds
+    let establish = await_condition(pods.clone(), "blog", is_pod_running());
+    let _ = tokio::time::timeout(std::time::Duration::from_secs(15), establish).await?;
+
+    let lp = ListParams::default();
+    let pods = pods.list(&lp).await?;
+    println!("Found Pods: {}", pods.items.len());
+
+    for p in pods {
+        println!("Found Pod: {}", p.name_any());
+    }
+
+    Ok(())
+}
+
+
+
+
+[package]
+name = "cndev"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+members = [".", "entity"]
+
+[dependencies]
+tokio = { version = "1.36.0", features = ["full"] }
+anyhow = { version = "1.0.79" }
+serde_json = "1.0.68"
+sea-orm = "0.12.14"
+actix-web = "4"
+kube = { version = "0.88.1", features = ["runtime", "derive"] }
+k8s-openapi = { version = "0.21.0", features = ["latest"] }
+
+
+
+
+
+
+
+
+
+
+
+brew info postgresql
+brew services start postgresql@16
+
+$ psql postgres
+psql (16.3)
+Type "help" for help.
+
+postgres=# \l
+                                                  List of databases
+   Name    |  Owner   | Encoding | Locale Provider | Collate | Ctype | ICU Locale | ICU Rules |   Access privileges   
+-----------+----------+----------+-----------------+---------+-------+------------+-----------+-----------------------
+ peppa     | peppa    | UTF8     | libc            | C       | C     |            |           | =Tc/peppa            +
+           |          |          |                 |         |       |            |           | peppa=CTc/peppa
+ postgres  | lindagao | UTF8     | libc            | C       | C     |            |           | 
+ template0 | lindagao | UTF8     | libc            | C       | C     |            |           | =c/lindagao          +
+           |          |          |                 |         |       |            |           | lindagao=CTc/lindagao
+ template1 | lindagao | UTF8     | libc            | C       | C     |            |           | =c/lindagao          +
+           |          |          |                 |         |       |            |           | lindagao=CTc/lindagao
+(4 rows)
+
+postgres=# create user cndev with password 'cndev';
+CREATE ROLE
+postgres=# create database cndev owner cndev;
+CREATE DATABASE
+postgres=# grant all privileges on database cndev to cndev;
+GRANT
+postgres=# \d cndev
+
+psql cndev
+\dt
+\d seaql_migrations
+peppa=# select * from seaql_migrations;
+peppa=# delete from seaql_migrations where version = 'm20240604_000001_create_tenant_table';

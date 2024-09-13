@@ -1,0 +1,87 @@
+.left {
+    float: left;
+}
+.clear {
+    clear: both;
+}
+#panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+#avatar_div {
+    padding: 0px;
+}
+#avatar {
+    width: 80px;
+    height: 80px;
+    image-rendering: pixelated;
+    background-color: midnightblue;
+    border-radius: 20%;
+}
+#author_info {
+    padding: 10px;
+}
+#nick {
+    font-size: 30px;
+    font-family: monospace;
+}
+#summary > div {
+    padding-right: 20px;
+    font-size: 15px;
+    font-family: monospace;
+}
+#user_portal {
+    margin-top: 20px;
+}
+fieldset {
+    border: 2px solid green;
+    padding: 20px;
+}
+legend {
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+#button_to_post_adding_page {
+    border: 2px solid green;
+    color: green;
+    cursor: pointer;
+    font-size: 20px;
+    font-family: monospace;
+}
+#button_to_post_adding_page:hover {
+    text-decoration-line: underline;
+}
+.posts {
+    display: table;
+}
+.post {
+    list-style-type: none;
+    font-size: 20px;
+    font-family: monospace;
+    display: table-row;
+}
+.post_title > a {
+    color: green;
+    text-decoration-line: none;
+    display: table-cell;
+    padding-bottom: 20px;
+}
+.post_title > a:hover {
+    text-decoration-line: underline;
+}
+.post_time {
+    color: dodgerblue;
+    font-size: 15px;
+    display: table-cell;
+    padding-left: 100px;
+}
+#pagenator {
+    padding-top: 50px;
+    color: green;
+    font-family: monospace;
+}
+#pagenator > a {
+    color: green;
+}

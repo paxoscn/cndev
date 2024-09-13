@@ -1,0 +1,12 @@
+yum install -y nginx
+cd /etc/nginx/
+cp nginx.conf nginx.conf.bak
+vi nginx.conf
+cd /usr/local/
+mv /tmp/www.sololo.cn_cert.pem .
+mv /tmp/www.sololo.cn_key.key .
+nginx -t
+nginx
+cd /usr/share/nginx/html/
+cp index.html index.html0
+vi index.html

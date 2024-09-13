@@ -1,0 +1,34 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html id="edit">
+	<head>
+    	<meta charset="UTF-8" />
+    	<title>CN.dev /* 中国开发者社区 */</title>
+		<link rel="stylesheet" href="https://www.sololo.cn/cndev/css/simplemde.min.css">
+		<link rel="stylesheet" href="https://www.sololo.cn/cndev/css/highlight.min.css">
+		<script src="https://www.sololo.cn/cndev/js/simplemde.min.js"></script>
+		<script src="https://www.sololo.cn/cndev/js/highlight.min.js"></script>
+		<script type="module" src="https://www.sololo.cn/cndev/js/posts/edit.js"></script>
+	</head>
+	<body bgcolor="#000">
+		<div id="content">
+			<p>
+				<button id="button_saving">保存</button>
+				<input id="id" type="hidden" />
+			</p>
+			<p>
+				<input id="title" placeholder="标题" />
+			</p>
+			<p id="p_sharing_path">
+				<span id="sharing_url_prefix"></span>
+				<input id="sharing_path" placeholder="用于分享的友好路径" />
+				<button id="button_path_generating">根据标题生成</button>
+			</p>
+			<p>
+				<input id="tags" />
+			</p>
+			<p>
+				<textarea id="text"></textarea>
+			</p>
+		</div>
+	</body>
+</html>

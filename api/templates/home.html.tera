@@ -1,0 +1,76 @@
+{% extends "layout.html.tera" %}
+
+
+
+{% block title %}
+{% endblock title %}
+
+
+
+{% block scripts %}
+<link rel="stylesheet" href="https://www.sololo.cn/cndev/css/home.css">
+<script src="https://www.sololo.cn/cndev/js/home.js"></script>
+{% endblock scripts %}
+
+
+
+{% block content %}
+<div id="panel">
+	<div id="logout_div" class="left">
+    <button id="logout_button">登出</button>
+	</div>
+	<div class="clear"></div>
+</div>
+<div id="author">
+	<div id="avatar_div" class="left">
+		<img id="avatar" src="https://www.sololo.cn/cndev/img/avatar-pixel.png" alt="nick" />
+	</div>
+	<div id="author_info" class="left">
+    <div id="nick">
+      {{ author_nick }}
+    </div>
+    <div id="summary">
+      <div id="joined_days_container" class="left">
+        已加入
+        <span id="joined_days">{{ author_register_days }}</span>
+        天
+      </div>
+      <div id="written_posts_container" class="left">
+        投稿
+        <span id="written_posts">{{ total_count }}</span>
+        篇
+      </div>
+	    <div class="clear"></div>
+    </div>
+	</div>
+	<div class="clear"></div>
+</div>
+<div id="searchbar">
+</div>
+<div id="user_portal">
+  <fieldset>
+    <legend>
+      <button id="button_to_post_adding_page">+ 新投稿 &gt;&gt;</button>
+    </legend>
+    <div id="posts">
+      {% for post in posts %}
+      <div class="post">
+        <div class="post_title"><a href="{{ post.id }}">{{ post.title }}</a></div>
+        <div class="post_time">{{ post.updated_at_formatted }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    <div id="pagenator">
+      {% if page == 1 %} Previous {% else %}
+      <a href="/?page={{ page - 1 }}&posts_per_page={{ posts_per_page }}"
+        >Previous</a
+      >
+      {% endif %} | {% if page == num_pages %} Next {% else %}
+      <a href="/?page={{ page + 1 }}&posts_per_page={{ posts_per_page }}"
+        >Next</a
+      >
+      {% endif %}
+    </div>
+  </fieldset>
+</div>
+{% endblock content %}

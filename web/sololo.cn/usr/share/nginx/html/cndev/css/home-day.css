@@ -1,0 +1,131 @@
+body, html {
+	height: 100%;
+	margin: 0;
+	padding:0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: whitesmoke;
+	color: black;
+}
+
+.content {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+#inputs {
+	font-size: 50px;
+	font-family: 'Courier New', Courier, monospace;
+}
+
+#inputs > p {
+	margin: 0px;
+}
+
+@keyframes blinking {
+    0%, 49% {
+		border-right: 10px solid orange;
+    }
+    50%, 100% {
+		border-right: 10px solid #DDD;
+    }
+}
+
+.input {
+	font-size: 39px;
+	padding-left: 30px;
+	padding-right: 0px;
+	border: 0px solid darkorange;
+	border-right: 10px solid darkorange;
+	background-color: #DDD;
+	color: darkorange;
+	animation: blinking 1s linear infinite;
+}
+
+.input:focus-within ~ .run {
+	color: green;
+}
+
+.quote {
+	color: darkorange;
+}
+
+#outputs {
+	margin-top: 50px;
+	background-color: #EEE;
+	border-top: 2px solid orange;
+	visibility: hidden;
+	font-family: serif;
+}
+
+.class_hidden {
+	visibility: hidden;
+}
+
+.package {
+	color: red;
+	font-weight: bold;
+}
+
+.instance {
+	color: red;
+}
+
+.method {
+	color: dodgerblue;
+}
+
+.param_name {
+	font-size: 30px;
+	font-style: italic;
+	color: gray;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.run {
+	font-size: 37px;
+	color: white;
+    vertical-align: middle;
+	cursor: pointer;
+}
+
+.event_time {
+	color: dimgray;
+}
+
+.log_info {
+	color: green;
+	font-weight: bold;
+}
+
+.log_warn {
+	color: red;
+	font-weight: bold;
+}
+
+.log_method {
+	color: lightgray;
+}
+
+.log_normal_message {
+	font-weight: bold;
+}
+
+.log_exception_message {
+	font-weight: bold;
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 9999;
+}

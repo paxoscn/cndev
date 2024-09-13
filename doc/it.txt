@@ -1,0 +1,9 @@
+mkdir ~/Data/ftp
+chmod a+w ~/Data/ftp
+# PASV_ADDRESS must be set or it would hang and return '425 Failed to establish connection' when putting a file.
+docker run -d -v /Users/lindagao/Workspace/cndev/web/cn.dev/usr/share/nginx/html/index-and-homes:/home/vsftpd -p 20:20 -p 21:21 -p 21100-21110:21100-21110 -e PASV_ADDRESS=127.0.0.1 -e FTP_USER=root -e FTP_PASS=root --restart=always --name vsftpd fauria/vsftpd
+#brew install tnftp
+#ftp ftp://root:root@127.0.0.1:21
+brew install ncftp
+ncftp -u root -p root -P 21 127.0.0.1
+ls
