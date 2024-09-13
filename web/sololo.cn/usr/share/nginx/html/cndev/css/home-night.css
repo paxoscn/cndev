@@ -117,3 +117,113 @@ body, html {
 .log_exception_message {
 	font-weight: bold;
 }
+
+
+
+
+
+.left {
+    float: left;
+}
+.clear {
+    clear: both;
+}
+#panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+#avatar_div {
+    padding: 0px;
+}
+#avatar {
+    width: 80px;
+    height: 80px;
+    image-rendering: pixelated;
+    background-color: midnightblue;
+    border-radius: 20%;
+}
+#author_info {
+    padding: 10px;
+}
+#nick {
+    font-size: 30px;
+    font-family: monospace;
+}
+#summary > div {
+    padding-right: 20px;
+    font-size: 15px;
+    font-family: monospace;
+}
+#user_portal {
+    margin-top: 20px;
+}
+fieldset {
+    border: 2px solid lawngreen;
+    padding: 20px;
+}
+legend {
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+#button_to_post_adding_page {
+    border: 2px solid lawngreen;
+    color: lawngreen;
+    cursor: pointer;
+    font-size: 20px;
+    font-family: monospace;
+	background-color: transparent;
+}
+#button_to_post_adding_page:hover {
+    text-decoration-line: underline;
+    color: black;
+	background-color: lawngreen;
+}
+.posts {
+    display: table;
+}
+.post {
+    list-style-type: none;
+    font-size: 20px;
+    font-family: monospace;
+    display: table-row;
+	cursor: pointer;
+}
+.post:hover {
+	background-color: lawngreen;
+}
+.post:hover span {
+    text-decoration-line: underline;
+	color: black;
+}
+.post:hover .post_time {
+	color: black;
+}
+.post_title {
+    padding-right: 100px;
+    display: table-cell;
+    padding: 10px;
+    padding-right: 100px;
+}
+.post_title > span {
+    color: lawngreen;
+}
+.post_time {
+    color: dodgerblue;
+    font-size: 15px;
+    display: table-cell;
+    padding: 10px;
+}
+#pagenator {
+    padding-top: 50px;
+    color: lawngreen;
+    font-family: monospace;
+}
+#pagenator > a {
+    color: lawngreen;
+}
+#pagenator > a:hover {
+    color: black;
+	background-color: lawngreen;
+}

@@ -129,3 +129,113 @@ body, html {
     border-radius: 5px;
     z-index: 9999;
 }
+
+
+
+
+
+.left {
+    float: left;
+}
+.clear {
+    clear: both;
+}
+#panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+#avatar_div {
+    padding: 0px;
+}
+#avatar {
+    width: 80px;
+    height: 80px;
+    image-rendering: pixelated;
+    background-color: skyblue;
+    border-radius: 20%;
+}
+#author_info {
+    padding: 10px;
+}
+#nick {
+    font-size: 30px;
+    font-family: monospace;
+}
+#summary > div {
+    padding-right: 20px;
+    font-size: 15px;
+    font-family: monospace;
+}
+#user_portal {
+    margin-top: 20px;
+}
+fieldset {
+    border: 2px solid darkorange;
+    padding: 20px;
+}
+legend {
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+#button_to_post_adding_page {
+    border: 2px solid darkorange;
+    color: darkorange;
+    cursor: pointer;
+    font-size: 20px;
+    font-family: monospace;
+	background-color: transparent;
+}
+#button_to_post_adding_page:hover {
+    text-decoration-line: underline;
+    color: white;
+	background-color: darkorange;
+}
+.posts {
+    display: table;
+}
+.post {
+    list-style-type: none;
+    font-size: 20px;
+    font-family: monospace;
+    display: table-row;
+	cursor: pointer;
+}
+.post:hover {
+	background-color: darkorange;
+}
+.post:hover span {
+    text-decoration-line: underline;
+	color: white;
+}
+.post:hover .post_time {
+	color: white;
+}
+.post_title {
+    padding-right: 100px;
+    display: table-cell;
+    padding: 10px;
+    padding-right: 100px;
+}
+.post_title > span {
+    color: darkorange;
+}
+.post_time {
+    color: dodgerblue;
+    font-size: 15px;
+    display: table-cell;
+    padding: 10px;
+}
+#pagenator {
+    padding-top: 50px;
+    color: darkorange;
+    font-family: monospace;
+}
+#pagenator > a {
+    color: darkorange;
+}
+#pagenator > a:hover {
+    color: white;
+	background-color: darkorange;
+}

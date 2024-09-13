@@ -8,7 +8,6 @@
 
 
 {% block scripts %}
-<link rel="stylesheet" href="https://www.sololo.cn/cndev/css/home.css">
 <script src="https://www.sololo.cn/cndev/js/home.js"></script>
 {% endblock scripts %}
 
