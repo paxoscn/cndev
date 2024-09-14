@@ -1,31 +1,15 @@
 function onInit(user) {
     document.getElementById("button_to_post_adding_page").addEventListener('click', addPost);
 
-    var user_json = localStorage.getItem('user');
-    var user = "";
-    eval("user = " + user_json);
-
-    const xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-                var posts = "";
-                eval("posts = " + xhr.responseText);
-
-                onPosts(user, posts);
-            } else {
-                console.log(xhr.status);
-                showToast("");
-            }
-        }
-    };
-
-    xhr.open("GET", "https://www.sololo.cn/cndev/api/posts", true);
-
-    xhr.setRequestHeader("Authorization", "Bearer " + user.token);
-
-    xhr.send(null);
+    document.querySelectorAll(".post").forEach((el) => {
+        el.addEventListener('click', function (e) {
+            var el = e.target;
+            while (el.className !== "post") el = el.parentNode;
+            window.location.href =
+                    "/" + (el.getAttribute("_post_author_nick").length < 1 ? el.getAttribute("_post_author_id") : el.getAttribute("_post_author_nick")) +
+                    "/" + (el.getAttribute("_post_sharing_path").length < 1 ? el.getAttribute("_post_id") : el.getAttribute("_post_sharing_path"));
+        });
+    });
 }
 
 function onPosts(user, posts) {

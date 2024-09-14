@@ -6,10 +6,6 @@ body, html {
 	color: white;
 }
 
-#p_sharing_path {
-	display: none;
-}
-
 .toast {
     position: fixed;
     bottom: 20px;

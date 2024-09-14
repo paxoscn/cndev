@@ -6,3 +6,9 @@
 *.key
 
 .vscode
+
+**/*-secrets.*
+
+**/*0.*
+
+**/index-and-homes

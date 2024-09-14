@@ -12,11 +12,8 @@ function onPost(user, post) {
     document.getElementById("button_saving").addEventListener('click', savePost);
     document.getElementById("id").value = post.id;
     document.getElementById("title").value = post.title;
-    document.getElementById("sharing_url_prefix").innerHTML = "https://cn.dev/" + user.nick + "/";
-    if (user.nick.length > 0) {
-        document.getElementById("p_sharing_path").style.display = "block";
-        document.getElementById("sharing_path").value = post.sharing_path;
-    }
+    document.getElementById("sharing_url_prefix").innerHTML = "https://cn.dev/" + (user.nick.length > 0 ? user.nick : user.id) + "/";
+    document.getElementById("sharing_path").value = post.sharing_path;
     document.getElementById("tags").value = post.tags;
     document.getElementById("text").value = post.text;
 
@@ -87,7 +84,7 @@ function savePost() {
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-                window.location.href = "/" + user.id;
+                window.location.href = "/" + user.nick;
             } else if (xhr.status === 401) {
                 localStorage.removeItem('user')
 

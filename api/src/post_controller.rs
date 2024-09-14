@@ -4,6 +4,7 @@ use cndev_service::{
 };
 
 use entity::{post, user};
+use migration::sea_orm::ColIdx;
 use serde::{Serialize, Deserialize};
 use crate::controllers::AppState;
 
@@ -153,7 +154,7 @@ async fn update(
 
     let conn = &data.conn;
     
-    let saved_post = match Mutation::update_post_by_id(conn,
+    let mut saved_post = match Mutation::update_post_by_id(conn,
             user_id,
             id,
             post_saving_request.title,
@@ -168,7 +169,27 @@ async fn update(
         }
     };
 
-    publish_home_page(&data, conn, user_id, user_nick, user_registering_time).await;
+    let page = 1;
+    let posts_per_page = DEFAULT_POSTS_PER_PAGE;
+
+    let (posts, total_count, num_pages) = Query::find_posts_of_user_in_page(conn, user_id, page, posts_per_page)
+        .await
+        .expect("Cannot find posts in page");
+
+    let host = "127.0.0.1";
+    let username = "root";
+    let password = "root";
+    
+    // Bad vsftpd may hang here. Restart vsftpd to fix.
+    let mut ftp = FtpStream::connect((host, 21)).unwrap();
+    ftp.login(username, password).unwrap();
+
+    publish_post_page(&mut ftp, &data, user_id, user_nick, user_registering_time, &mut saved_post).await;
+
+    publish_home_page(&mut ftp, &data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
+
+    // Double-quitting leads panicking.
+    ftp.quit().unwrap();
 
     Ok(HttpResponse::Ok().json(saved_post.try_into_model().unwrap()))
 }
@@ -226,15 +247,47 @@ async fn delete(data: web::Data<AppState>, id: web::Path<i32>) -> Result<HttpRes
         .finish())
 }
 
-async fn publish_home_page(data: &web::Data<AppState>, conn: &DatabaseConnection, author_id: i32, author_nick: &str, author_registering_time: i64) -> bool {
+async fn publish_post_page(ftp: &mut FtpStream, data: &web::Data<AppState>, author_id: i32, author_nick: &str, author_registering_time: i64,
+        post: &mut post::Model) -> bool {
+    print!("Publishing post page {} for user {}", post.id, author_id);
+
+    post.updated_at_formatted = post.updated_at.format("%Y-%m-%d %H:%M:%S").to_string();
+
+    let template = &data.templates;
+    let mut ctx = tera::Context::new();
+    ctx.insert("author_id", &author_id);
+    ctx.insert("author_nick", author_nick);
+    ctx.insert("author_registering_time", &format!("{}", author_registering_time));
+    ctx.insert("post", post);
+
+    let body = template
+        .render("post.html.tera", &ctx)
+        .unwrap()
+        .into_bytes();
+
+    let _ = ftp.mkdir(format!("/{}", author_id).as_str());
+    let _ = ftp.cwd(format!("/{}", author_id).as_str());
+    let _ = ftp.put(format!("{}.html", post.id).as_str(), &mut Cursor::new(&body));
+    if post.sharing_path.len() > 0 {
+        let _ = ftp.put(format!("{}.html", post.sharing_path).as_str(), &mut Cursor::new(&body));
+    }
+    if author_nick.len() > 0 {
+        let _ = ftp.mkdir(format!("/{}", author_nick).as_str());
+        let _ = ftp.cwd(format!("/{}", author_nick).as_str());
+        let _ = ftp.put(format!("{}.html", post.id).as_str(), &mut Cursor::new(&body));
+        if post.sharing_path.len() > 0 {
+            let _ = ftp.put(format!("{}.html", post.sharing_path).as_str(), &mut Cursor::new(&body));
+        }
+    }
+
+    print!("Published post page {} for user {}", post.id, author_id);
+
+    false
+}
+
+async fn publish_home_page(ftp: &mut FtpStream, data: &web::Data<AppState>, author_id: i32, author_nick: &str, author_registering_time: i64,
+        mut posts: Vec<post::Model>, total_count: u64, num_pages: u64, page: u64, posts_per_page: u64) -> bool {
     print!("Publishing home page for user {}", author_id);
-
-    let page = 1;
-    let posts_per_page = DEFAULT_POSTS_PER_PAGE;
-
-    let (mut posts, total_count, num_pages) = Query::find_posts_of_user_in_page(conn, author_id, page, posts_per_page)
-        .await
-        .expect("Cannot find posts in page");
 
     for post in posts.iter_mut() {
         post.updated_at_formatted = post.updated_at.format("%Y-%m-%d %H:%M:%S").to_string()
@@ -253,19 +306,14 @@ async fn publish_home_page(data: &web::Data<AppState>, conn: &DatabaseConnection
 
     let body = template
         .render("home.html.tera", &ctx)
-        .unwrap();
+        .unwrap()
+        .into_bytes();
 
-    let host = "127.0.0.1";
-    let username = "root";
-    let password = "root";
-
-    let mut ftp = FtpStream::connect((host, 21)).unwrap();
-    ftp.login(username, password).unwrap();
-
-    let mut reader = Cursor::new(body.into_bytes());
-    let _ = ftp.put(format!("{}", author_id).as_str(), &mut reader);
-
-    ftp.quit().unwrap();
+    let _ = ftp.cwd("/");
+    let _ = ftp.put(format!("{}.html", author_id).as_str(), &mut Cursor::new(&body));
+    if author_nick.len() > 0 {
+        let _ = ftp.put(format!("{}.html", author_nick).as_str(), &mut Cursor::new(&body));
+    }
 
     print!("Published home page of user {}", author_id);
 
