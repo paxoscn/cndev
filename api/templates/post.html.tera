@@ -8,46 +8,39 @@
 
 
 {% block scripts %}
-<script src="https://www.sololo.cn/cndev/js/post.js"></script>
+<script>
+var author_id = "{{ author_id }}";
+var author_nick = "{{ author_nick }}";
+var post_text = ```
+```
+</script>
+<script src="https://www.sololo.cn/cndev/js/marked.min.js"></script>
+<script type="module" src="https://www.sololo.cn/cndev/js/post.js"></script>
 {% endblock scripts %}
 
 
 
 {% block content %}
 <div id="panel">
-	<div id="logout_div" class="left">
+  <div id="logout_div" class="left">
     <button id="logout_button">登出</button>
-	</div>
-	<div class="clear"></div>
-</div>
-<div id="author">
-	<div id="avatar_div" class="left">
-		<img id="avatar" src="https://www.sololo.cn/cndev/img/avatar-pixel.png" alt="nick" />
-	</div>
-	<div id="author_info" class="left">
-    <div id="nick">
-      {{ author_nick }}
-    </div>
-    <div id="summary">
-      <div id="joined_days_container" class="left">
-        已加入
-        <span id="joined_days">111</span>
-        天
-      </div>
-      <div id="written_posts_container" class="left">
-        投稿
-        <span id="written_posts">111</span>
-        篇
-      </div>
-	    <div class="clear"></div>
-    </div>
-	</div>
-	<div class="clear"></div>
-</div>
-<div id="user_portal">
-  <div class="post" _post_id="{{ post.id }}" _post_author_id="{{ author_id }}" _post_author_nick="{{ author_nick }}" _post_sharing_path="{{ post.sharing_path }}">
-    <div class="post_title"><span>{{ post.title }}</span></div>
-    <div class="post_time">{{ post.updated_at_formatted }}</div>
   </div>
+  <div class="clear"></div>
+</div>
+<div id="canvas">
+  <div id="title_and_author">
+    <div class="post_title left">{{ post.title }}</div>
+    <div class="edit left"><a href="/posts/{{ post.id }}">编辑</a></div>
+    <div class="author_nick_prompt left">作者:</div>
+    <div class="author_nick_container left">
+      <a class="author_nick"></a>
+    </div>
+    <div class="post_time left">{{ post.updated_at_formatted }}</div>
+    <div class="clear"></div>
+  </div>
+  <div id="post_text_container">
+    <textarea id="post_text">{{ post.text }}</textarea>
+  </div>
+  <div id="post_rendered_text"></div>
 </div>
 {% endblock content %}

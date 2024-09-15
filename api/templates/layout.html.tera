@@ -1,5 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html id="home">
+<html template="{{ template }}">
 	<head>
     	<meta charset="UTF-8" />
     	<title>{% block title %}{% endblock title %} CN.dev /* 中国开发者社区 */</title>

@@ -1,6 +1,6 @@
 var currentHour = new Date().getHours();
 var period = currentHour >= 7 && currentHour < 19 ? "day" : "night";
-loadStylesheet("https://www.sololo.cn/cndev/css/" + document.getElementsByTagName("HTML")[0].getAttribute("id") + "-" + period + ".css");
+loadStylesheet("https://www.sololo.cn/cndev/css/" + document.getElementsByTagName("HTML")[0].getAttribute("template") + "-" + period + ".css");
 
 function sendCode() {
     var tel = document.getElementById("tel").value;

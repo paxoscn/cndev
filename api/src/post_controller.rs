@@ -255,6 +255,7 @@ async fn publish_post_page(ftp: &mut FtpStream, data: &web::Data<AppState>, auth
 
     let template = &data.templates;
     let mut ctx = tera::Context::new();
+    ctx.insert("template", "post");
     ctx.insert("author_id", &author_id);
     ctx.insert("author_nick", author_nick);
     ctx.insert("author_registering_time", &format!("{}", author_registering_time));
@@ -295,6 +296,7 @@ async fn publish_home_page(ftp: &mut FtpStream, data: &web::Data<AppState>, auth
 
     let template = &data.templates;
     let mut ctx = tera::Context::new();
+    ctx.insert("template", "home");
     ctx.insert("author_id", &author_id);
     ctx.insert("author_nick", author_nick);
     ctx.insert("author_register_days", &format!("{}", chrono::Utc::now().naive_utc().signed_duration_since(chrono::NaiveDateTime::from_timestamp_opt(author_registering_time, 0).unwrap()).num_days()));
