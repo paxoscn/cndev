@@ -84,6 +84,8 @@ function savePost() {
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
+                simplemde.clearAutosavedValue();
+                
                 window.location.href = "/" + user.nick + "/" + (post.sharing_path.length < 1 ? id : post.sharing_path);
             } else if (xhr.status === 401) {
                 localStorage.removeItem('user')

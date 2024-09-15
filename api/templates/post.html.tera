@@ -31,13 +31,13 @@ var post_text = ```
   <div id="title_and_author">
     <div class="post_title left">{{ post.title }}</div>
     <div class="edit left"><a href="/posts/{{ post.id }}">编辑</a></div>
-    <div class="author_nick_prompt left">作者:</div>
-    <div class="author_nick_container left">
-      <a class="author_nick"></a>
+    <div class="author_avatar_and_nick" class="left">
+      <img id="avatar" src="https://www.sololo.cn/cndev/img/avatar-pixel.png" alt="nick" /><span class="author_nick"></span>
     </div>
     <div class="post_time left">{{ post.updated_at_formatted }}</div>
     <div class="clear"></div>
   </div>
+  <hr />
   <div id="post_text_container">
     <textarea id="post_text">{{ post.text }}</textarea>
   </div>

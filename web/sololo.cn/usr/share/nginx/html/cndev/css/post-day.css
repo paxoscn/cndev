@@ -149,9 +149,41 @@ body, html {
     position: absolute;
     top: 0px;
     left: 0px;
+    padding: 20px;
+}
+#title_and_author {
+    font-family: monospace;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+.post_title {
+    font-size: 50px;
+    font-weight: bold;
 }
 .edit {
     display: none;
+}
+.author_avatar_and_nick {
+    padding-left: 50px;
+	color: darkorange;
+    font-size: 30px;
+}
+.author_avatar_and_nick:hover {
+    text-decoration-line: underline;
+}
+#avatar {
+    width: 40px;
+    height: 40px;
+    image-rendering: pixelated;
+    background-color: skyblue;
+    border-radius: 20%;
+    vertical-align: middle;
+}
+.post_time {
+    font-size: 20px;
+    padding-left: 50px;
+    color: dodgerblue;
 }
 #post_text {
     display: none;
