@@ -89,7 +89,10 @@ async fn start() -> std::io::Result<()> {
                         // validation.sub = Some("b@b.com".to_string());
                         // validation.set_audience(&["me"]);
                         validation.set_required_spec_claims(&["id", "nick", "exp"]);
-                        match decode::<Claims>(&token, &DecodingKey::from_secret(b"secret"), &validation) {
+
+                        let jwt_secret = env::var("APP_VERSION").expect("APP_VERSION is not set");
+
+                        match decode::<Claims>(&token, &DecodingKey::from_secret(jwt_secret.as_bytes()), &validation) {
                             Ok(token_data) => {
                                 // TODO Checking if the token is expired
 

@@ -100,7 +100,7 @@ function verifyCode() {
                     
                     onInit(user);
 
-                    document.getElementById("content_not_logged_in").style.display = "none";
+                    document.getElementById("content_for_logging_in").style.display = "none";
                     document.getElementById("content_logged_in").style.display = "block";
                 } else {
                     showLog([
@@ -145,7 +145,7 @@ window.addEventListener('load', function () {
 
         document.getElementById("content_logged_in").style.display = "block";
     } else {
-        document.getElementById("content_not_logged_in").style.display = "block";
+        document.getElementById("content_for_logging_in").style.display = "block";
     }
 
     document.querySelectorAll(".input").forEach((input) => {

@@ -15,6 +15,8 @@ use jsonwebtoken::{encode, EncodingKey, Header, Algorithm};
 
 use std::env;
 
+use ftp::FtpStream;
+
 use actix_web::{
     error, get, post, put, web, Error, HttpRequest, HttpResponse, Result,
 };
@@ -23,7 +25,9 @@ use std::net::IpAddr;
 
 use chrono::{format, DateTime, Utc};
 
-const DEFAULT_POSTS_PER_PAGE: u64 = 5;
+use crate::post_controller::publish_home_page;
+
+const DEFAULT_POSTS_PER_PAGE: u64 = 100;
 
 #[derive(Deserialize)]
 struct SmsSendingRequest {
@@ -208,11 +212,23 @@ async fn grant_token(
                 exp: (Utc::now().timestamp() + 86400 * 365) as usize, // UNIX timestamp for expiration
             };
             
-            let key = "secret";
+            let jwt_secret = env::var("APP_VERSION").expect("APP_VERSION is not set");
             
-            let token = encode(&Header::new(Algorithm::HS256), &my_claims, &EncodingKey::from_secret(key.as_ref())).unwrap();
+            let token = encode(&Header::new(Algorithm::HS256), &my_claims, &EncodingKey::from_secret(jwt_secret.as_ref())).unwrap();
             
             println!("{}", token);
+
+            if user_created {
+                let host = "127.0.0.1";
+                let username = "root";
+                let password = "root";
+
+                // Bad vsftpd may hang here. Restart vsftpd to fix.
+                let mut ftp = FtpStream::connect((host, 21)).unwrap();
+                ftp.login(username, password).unwrap();
+
+                publish_home_page(&mut ftp, &data, user.id, user.nick.as_str(), user.created_at.timestamp(), Vec::new(), 0, 1, 1, DEFAULT_POSTS_PER_PAGE).await;
+            }
         
             Ok(HttpResponse::Created().json(TokenGrantingResponse {
                 token: token,

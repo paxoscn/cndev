@@ -19,7 +19,7 @@ use actix_web::{
     error, get, post, put, web, Error, HttpRequest, HttpResponse, Result, http::header::HeaderValue,
 };
 
-const DEFAULT_POSTS_PER_PAGE: u64 = 5;
+const DEFAULT_POSTS_PER_PAGE: u64 = 100;
 
 #[derive(Debug, Deserialize)]
 pub struct Params {
@@ -286,7 +286,7 @@ async fn publish_post_page(ftp: &mut FtpStream, data: &web::Data<AppState>, auth
     false
 }
 
-async fn publish_home_page(ftp: &mut FtpStream, data: &web::Data<AppState>, author_id: i32, author_nick: &str, author_registering_time: i64,
+pub async fn publish_home_page(ftp: &mut FtpStream, data: &web::Data<AppState>, author_id: i32, author_nick: &str, author_registering_time: i64,
         mut posts: Vec<post::Model>, total_count: u64, num_pages: u64, page: u64, posts_per_page: u64) -> bool {
     print!("Publishing home page for user {}", author_id);
 
