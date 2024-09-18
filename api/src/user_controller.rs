@@ -6,11 +6,14 @@ use cndev_service::{
 };
 
 use entity::user;
+use rand::Rng;
 use redis::Commands;
 use serde::{Serialize, Deserialize};
 use crate::controllers::AppState;
 
 use jsonwebtoken::{encode, EncodingKey, Header, Algorithm};
+
+use std::env;
 
 use actix_web::{
     error, get, post, put, web, Error, HttpRequest, HttpResponse, Result,
@@ -18,7 +21,7 @@ use actix_web::{
 
 use std::net::IpAddr;
 
-use chrono::{DateTime, Utc};
+use chrono::{format, DateTime, Utc};
 
 const DEFAULT_POSTS_PER_PAGE: u64 = 5;
 
@@ -118,7 +121,18 @@ async fn send_sms(
         None => {}
     }
 
-    match cache_and_send_sms(&data.redis, &sms_sending_request.tel) {
+    // TODO Init on startup.
+    let aliyun_sms_region = env::var("ALIYUN_SMS_REGION").expect("ALIYUN_SMS_REGION is not set in .env file");
+    let aliyun_sms_ak = env::var("ALIYUN_SMS_AK").expect("ALIYUN_SMS_AK is not set in .env file");
+    let aliyun_sms_sk = env::var("ALIYUN_SMS_SK").expect("ALIYUN_SMS_SK is not set");
+
+    let mut aliyun_sms_client = alibaba_cloud_sdk_rust::services::dysmsapi::Client::NewClientWithAccessKey(
+        aliyun_sms_region.as_str(),
+        aliyun_sms_ak.as_str(),
+        aliyun_sms_sk.as_str(),
+    )?;
+
+    match cache_and_send_sms(&data.redis, aliyun_sms_client, &sms_sending_request.tel) {
         Some(res) => {
             return res;
         }
@@ -139,12 +153,12 @@ async fn grant_token(
 ) -> Result<HttpResponse, Error> {
     let token_granting_request = token_granting_request_json.into_inner();
 
-    // match check_sms_code(&data.redis, &token_granting_request.tel, &token_granting_request.sms_code) {
-    //     Some(res) => {
-    //         return res;
-    //     }
-    //     None => {}
-    // }
+    match check_sms_code(&data.redis, &token_granting_request.tel, &token_granting_request.sms_code) {
+        Some(res) => {
+            return res;
+        }
+        None => {}
+    }
 
     let conn = &data.conn;
 
@@ -301,14 +315,28 @@ fn check_sms_sending_times(redis: &redis::Client, client_ip: &str) -> Option<Res
     }
 }
 
-fn cache_and_send_sms(redis: &redis::Client, tel: &str) -> Option<Result<HttpResponse, Error>> {
-    let sms_code = "123456";
+fn cache_and_send_sms(redis: &redis::Client, mut aliyun_sms_client: alibaba_cloud_sdk_rust::services::dysmsapi::Client, tel: &str) -> Option<Result<HttpResponse, Error>> {
+    let sms_code = generate_sms_code();
+
+    println!("sending {} to {}", sms_code, tel);
 
     match redis.get_connection() {
         Ok(mut conn) => {
-            conn.set(format!("sms_code-{}", tel), sms_code).unwrap_or(0);
+            conn.set(format!("sms_code-{}", tel), sms_code.to_owned()).unwrap_or(0);
 
             conn.expire(format!("sms_code-{}", tel), 180).unwrap_or(());
+
+            // TODO Async.
+            let aliyun_sms_template = env::var("ALIYUN_SMS_TEMPLATE").expect("ALIYUN_SMS_TEMPLATE is not set in .env file");
+            let aliyun_sms_signature = env::var("ALIYUN_SMS_SIGNATURE").expect("ALIYUN_SMS_SIGNATURE is not set in .env file");
+
+            let mut request = alibaba_cloud_sdk_rust::services::dysmsapi::CreateSendSmsRequest();
+            request.PhoneNumbers = String::from(tel);
+            request.SignName = aliyun_sms_signature;
+            request.TemplateCode = aliyun_sms_template;
+            request.TemplateParam = format!("{{\"code\":\"{}\"}}", sms_code);
+            let response = aliyun_sms_client.SendSms(&mut request).ok()?;
+            println!("{:?}", &response);
 
             return None;
         }
@@ -335,4 +363,24 @@ fn check_sms_code(redis: &redis::Client, tel: &str, sms_code: &str) -> Option<Re
             return Some(Ok(HttpResponse::InternalServerError().finish()));
         }
     }
+}
+
+fn generate_sms_code() -> String {
+    let mut rng = rand::thread_rng();
+    let base: i32 = 9;
+    let min: i32 = base.pow(6);
+    let max: i32 = min * 2 - 1;
+    let code: i32 = rng.gen_range(min..max);
+    return to_base9(code)[1..].to_string().replace("4", "9");
+}
+
+fn to_base9(mut num: i32) -> String {
+    let mut result = String::new();
+    while num > 0 {
+        let digit = num % 9;
+        result.push_str(&digit.to_string());
+        num /= 9;
+    }
+
+    result.chars().rev().collect::<String>()
 }

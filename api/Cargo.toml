@@ -21,5 +21,7 @@ tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 entity = { path = "../entity" }
 migration = { path = "../migration" }
 redis = { version = "0.25.3", features = ["tokio-comp"] }
+alibaba-cloud-sdk-rust = "0.1.11"
+rand = "0.8.5"
 chrono = "0.4"
 ftp = "3.0.1"
