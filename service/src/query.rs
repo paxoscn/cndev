@@ -42,6 +42,7 @@ impl Query {
         // Setup paginator
         let paginator = Post::find()
             .filter(post::Column::UserId.eq(user_id))
+            .filter(post::Column::Status.ne(3))
             .order_by_desc(post::Column::Id)
             .paginate(db, posts_per_page);
         let num_pages = paginator.num_pages().await?;

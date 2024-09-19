@@ -13,6 +13,7 @@ pub struct Model {
     pub tags: String,
     #[sea_orm(column_type = "Text")]
     pub text: String,
+    /* 1: draft, 2: published, 3: deleted */
     pub status: i16,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,

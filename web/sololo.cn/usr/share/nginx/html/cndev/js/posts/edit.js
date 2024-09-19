@@ -94,7 +94,7 @@ function savePost() {
             if (xhr.status === 200) {
                 simplemde.clearAutosavedValue();
 
-                window.location.href = "/" + (user.nick.length > 0 ? user.nick : user.id) + "/" + (post.sharing_path.length < 1 ? id : post.sharing_path);
+                window.location.href = "/" + (user.nick.length > 0 ? user.nick : user.id);
             } else if (xhr.status === 401) {
                 localStorage.removeItem('user')
 

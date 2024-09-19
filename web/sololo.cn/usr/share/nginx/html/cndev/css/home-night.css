@@ -204,7 +204,6 @@ legend {
     font-size: 20px;
     font-family: monospace;
     display: table-row;
-	cursor: pointer;
 }
 .post:hover {
 	background-color: lawngreen;
@@ -220,10 +219,20 @@ legend {
     padding-right: 100px;
     display: table-cell;
     padding: 10px;
-    padding-right: 100px;
+	cursor: pointer;
 }
 .post_title > span {
     color: lawngreen;
+}
+.post_panel {
+    display: table-cell;
+    padding-right: 100px;
+}
+.post_panel > span {
+    visibility: hidden;
+}
+.post_publishing {
+    visibility: hidden;
 }
 .post_time {
     color: dodgerblue;

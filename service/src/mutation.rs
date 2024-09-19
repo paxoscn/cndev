@@ -45,8 +45,6 @@ impl Mutation {
             .ok_or(DbErr::Custom("Cannot find post.".to_owned()))
             .map(Into::into)?;
 
-        println!("xxx {}", title.to_owned());
-
         post::ActiveModel {
             id: post.id,
             user_id: post.user_id,
@@ -58,6 +56,48 @@ impl Mutation {
             created_at: Set(post.created_at.as_ref().to_owned()),
             updated_at: Set(Utc::now().naive_utc().to_owned()),
         }
+        .update(db)
+        .await
+    }
+
+    pub async fn publish_post_by_id(
+        db: &DbConn,
+        user_id: i32,
+        id: i32,
+    ) -> Result<post::Model, DbErr> {
+        let mut post: post::ActiveModel = Post::find()
+            .filter(post::Column::Id.eq(id))
+            .filter(post::Column::UserId.eq(user_id))
+            .filter(post::Column::Status.eq(1))
+            .one(db)
+            .await?
+            .ok_or(DbErr::Custom("Cannot find post.".to_owned()))
+            .map(Into::into)?;
+
+        post.status = Set(2);
+
+        post
+        .update(db)
+        .await
+    }
+
+    pub async fn delete_post_by_id(
+        db: &DbConn,
+        user_id: i32,
+        id: i32,
+    ) -> Result<post::Model, DbErr> {
+        let mut post: post::ActiveModel = Post::find()
+            .filter(post::Column::Id.eq(id))
+            .filter(post::Column::UserId.eq(user_id))
+            .filter(post::Column::Status.ne(3))
+            .one(db)
+            .await?
+            .ok_or(DbErr::Custom("Cannot find post.".to_owned()))
+            .map(Into::into)?;
+
+        post.status = Set(3);
+
+        post
         .update(db)
         .await
     }
