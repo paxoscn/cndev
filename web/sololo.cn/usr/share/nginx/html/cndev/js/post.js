@@ -39,10 +39,12 @@ const mermaid_ext = {
 };
 
 window.onInit = function(user) {
+    document.getElementById("content_main").style.display = "block";
+
     document.querySelector(".author_nick").setAttribute("href", "/" + (author_nick.length > 0 ? author_nick : author_id));
     document.querySelector(".author_nick").innerHTML = author_nick;
 
-    if (user.id == author_id) {
+    if (user != null && user.id == author_id) {
         document.querySelector(".edit").style.display = "block";
     }
 

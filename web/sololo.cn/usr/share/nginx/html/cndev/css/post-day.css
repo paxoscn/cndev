@@ -130,6 +130,10 @@ body, html {
     z-index: 9999;
 }
 
+#login_div, #logout_div {
+    display: none;
+}
+
 
 
 

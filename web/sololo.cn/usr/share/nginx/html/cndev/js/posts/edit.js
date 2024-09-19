@@ -8,6 +8,14 @@ mermaid.initialize({ startOnLoad: false });
 
 var simplemde = null;
 
+function onInit(user) {
+    if (user != null) {
+        document.getElementById("content_main").style.display = "block";
+    } else {
+        window.location.href = "/";
+    }
+}
+
 function onPost(user, post) {
     document.getElementById("button_saving").addEventListener('click', savePost);
     document.getElementById("id").value = post.id;

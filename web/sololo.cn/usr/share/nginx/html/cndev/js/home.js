@@ -1,4 +1,6 @@
 function onInit(user) {
+    document.getElementById("content_main").style.display = "block";
+    
     document.getElementById("button_to_post_adding_page").addEventListener('click', addPost);
 
     document.querySelectorAll(".post").forEach((el) => {

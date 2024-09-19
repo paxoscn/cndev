@@ -98,10 +98,7 @@ function verifyCode() {
                     eval("user = " + xhr.responseText);
                     localStorage.setItem("user", xhr.responseText);
                     
-                    onInit(user);
-
-                    document.getElementById("content_for_logging_in").style.display = "none";
-                    document.getElementById("content_logged_in").style.display = "block";
+                    window.location.reload();
                 } else {
                     showLog([
                         "<span class=\"event_time\">[" + time + "]</span> <span class=\"log_warn\">WARN</span> InternalException: <span class=\"log_exception_message\">验证失败(" + xhr.status + "), 请稍后尝试</span>",
@@ -135,17 +132,30 @@ function loadStylesheet(url) {
     document.head.appendChild(link);
 }
 
+function logIn() {
+    document.getElementById("content_for_logging_in").style.display = "block";
+    document.getElementById("content_main").style.display = "none";
+}
+
+function logOut() {
+    localStorage.removeItem("user");
+
+    window.location.reload();
+}
+
 window.addEventListener('load', function () {
+    var user = null;
     var user_json = localStorage.getItem('user');
     if (user_json != null) {
-        var user = "";
         eval("user = " + user_json);
 
-        onInit(user);
-
-        document.getElementById("content_logged_in").style.display = "block";
+        document.querySelectorAll("#logout_div").forEach((div) => {
+            div.style.display = "block";
+        });
     } else {
-        document.getElementById("content_for_logging_in").style.display = "block";
+        document.querySelectorAll("#login_div").forEach((div) => {
+            div.style.display = "block";
+        });
     }
 
     document.querySelectorAll(".input").forEach((input) => {
@@ -167,4 +177,14 @@ window.addEventListener('load', function () {
 
     document.getElementById("button_sending").addEventListener('click', sendCode);
     document.getElementById("button_verifying").addEventListener('click', verifyCode);
+
+    document.querySelectorAll("#logout_button").forEach((button) => {
+        button.addEventListener('click', logOut);
+    });
+
+    document.querySelectorAll("#login_button").forEach((button) => {
+        button.addEventListener('click', logIn);
+    });
+
+    onInit(user);
 });

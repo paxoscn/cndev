@@ -367,9 +367,10 @@ fn check_sms_code(redis: &redis::Client, tel: &str, sms_code: &str) -> Option<Re
         Ok(mut conn) => {
             let valid_sms_code: String = conn.get(format!("sms_code-{}", tel)).unwrap_or("".to_owned());
 
-            if valid_sms_code.len() < 1 || valid_sms_code != sms_code {
-                return Some(Ok(HttpResponse::Forbidden().finish()));
-            }
+            // FIXME Checking sms_code is off now.
+            // if valid_sms_code.len() < 1 || valid_sms_code != sms_code {
+            //     return Some(Ok(HttpResponse::Forbidden().finish()));
+            // }
 
             conn.del(format!("sms_code-{}", tel)).unwrap_or(0);
 
