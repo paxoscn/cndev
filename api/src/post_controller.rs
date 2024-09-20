@@ -3,7 +3,7 @@ use cndev_service::{
     Mutation, Query,
 };
 
-use entity::{post, user};
+use entity::{post::{self, STATUS_PUBLISHED}, user};
 use migration::sea_orm::ColIdx;
 use serde::{Serialize, Deserialize};
 use crate::controllers::AppState;
@@ -23,6 +23,7 @@ const DEFAULT_POSTS_PER_PAGE: u64 = 100;
 
 #[derive(Debug, Deserialize)]
 pub struct Params {
+    status: i16,
     page: Option<u64>,
     posts_per_page: Option<u64>,
 }
@@ -62,9 +63,13 @@ async fn list(req: HttpRequest, data: web::Data<AppState>) -> Result<HttpRespons
     let page = params.page.unwrap_or(1);
     let posts_per_page = params.posts_per_page.unwrap_or(DEFAULT_POSTS_PER_PAGE);
 
-    let (posts, total_count, num_pages) = Query::find_posts_of_user_in_page(conn, user_id, page, posts_per_page)
+    let (mut posts, total_count, num_pages) = Query::find_posts_of_user_and_status_in_page(conn, user_id, params.status, page, posts_per_page)
         .await
         .expect("Cannot find posts in page");
+
+    for post in posts.iter_mut() {
+        post.updated_at_formatted = post.updated_at.format("%Y-%m-%d %H:%M:%S").to_string()
+    }
 
     Ok(HttpResponse::Ok().json(PostListingResponse {
         entities: &posts,
@@ -169,27 +174,29 @@ async fn update(
         }
     };
 
-    let page = 1;
-    let posts_per_page = DEFAULT_POSTS_PER_PAGE;
-
-    let (posts, total_count, num_pages) = Query::find_posts_of_user_in_page(conn, user_id, page, posts_per_page)
-        .await
-        .expect("Cannot find posts in page");
-
-    let host = "127.0.0.1";
-    let username = "root";
-    let password = "root";
+    if saved_post.status == STATUS_PUBLISHED {
+        let page = 1;
+        let posts_per_page = DEFAULT_POSTS_PER_PAGE;
     
-    // Bad vsftpd may hang here. Restart vsftpd to fix.
-    let mut ftp = FtpStream::connect((host, 21)).unwrap();
-    ftp.login(username, password).unwrap();
-
-    publish_post_page(&mut ftp, &data, user_id, user_nick, user_registering_time, &mut saved_post).await;
-
-    publish_home_page(&mut ftp, &data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
-
-    // Double-quitting leads panicking.
-    ftp.quit().unwrap();
+        let (posts, total_count, num_pages) = Query::find_posts_of_user_and_status_in_page(conn, user_id, STATUS_PUBLISHED, page, posts_per_page)
+            .await
+            .expect("Cannot find posts in page");
+    
+        let host = "127.0.0.1";
+        let username = "root";
+        let password = "root";
+        
+        // Bad vsftpd may hang here. Restart vsftpd to fix.
+        let mut ftp = FtpStream::connect((host, 21)).unwrap();
+        ftp.login(username, password).unwrap();
+    
+        publish_post_page(&mut ftp, &data, user_id, user_nick, user_registering_time, &mut saved_post).await;
+    
+        publish_home_page(&mut ftp, &data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
+    
+        // Double-quitting leads panicking.
+        ftp.quit().unwrap();
+    }
 
     Ok(HttpResponse::Ok().json(saved_post.try_into_model().unwrap()))
 }
@@ -227,7 +234,7 @@ async fn publish(
     let page = 1;
     let posts_per_page = DEFAULT_POSTS_PER_PAGE;
 
-    let (posts, total_count, num_pages) = Query::find_posts_of_user_in_page(conn, user_id, page, posts_per_page)
+    let (posts, total_count, num_pages) = Query::find_posts_of_user_and_status_in_page(conn, user_id, STATUS_PUBLISHED, page, posts_per_page)
         .await
         .expect("Cannot find posts in page");
 
@@ -240,6 +247,61 @@ async fn publish(
     ftp.login(username, password).unwrap();
 
     publish_post_page(&mut ftp, &data, user_id, user_nick, user_registering_time, &mut saved_post).await;
+
+    publish_home_page(&mut ftp, &data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
+
+    // Double-quitting leads panicking.
+    ftp.quit().unwrap();
+
+    Ok(HttpResponse::Ok().finish())
+}
+
+#[put("/posts/{id}/unpublishing")]
+async fn unpublish(
+    req: HttpRequest,
+    data: web::Data<AppState>,
+    id: web::Path<i32>,
+) -> Result<HttpResponse, Error> {
+    let user_id = match req.headers().get("id") {
+        Some(id) => id.to_str().unwrap().parse::<i32>().unwrap(),
+        None => {
+            return Ok(HttpResponse::NotFound().finish())
+        }
+    };
+    let user_nick = req.headers().get("nick").unwrap().to_str().unwrap();
+    let user_registering_time = req.headers().get("reg").unwrap().to_str().unwrap().parse::<i64>().unwrap();
+
+    let id = id.into_inner();
+
+    let conn = &data.conn;
+    
+    let mut saved_post = match Mutation::unpublish_post_by_id(conn,
+            user_id,
+            id).await {
+        Ok(saved_post) => saved_post,
+        Err(e) => {
+            print!("Database error: {:?}", e);
+
+            return Ok(HttpResponse::InternalServerError().finish())
+        }
+    };
+
+    let page = 1;
+    let posts_per_page = DEFAULT_POSTS_PER_PAGE;
+
+    let (posts, total_count, num_pages) = Query::find_posts_of_user_and_status_in_page(conn, user_id, STATUS_PUBLISHED, page, posts_per_page)
+        .await
+        .expect("Cannot find posts in page");
+
+    let host = "127.0.0.1";
+    let username = "root";
+    let password = "root";
+    
+    // Bad vsftpd may hang here. Restart vsftpd to fix.
+    let mut ftp = FtpStream::connect((host, 21)).unwrap();
+    ftp.login(username, password).unwrap();
+
+    unpublish_post_page(&mut ftp, &data, user_id, user_nick, user_registering_time, &mut saved_post).await;
 
     publish_home_page(&mut ftp, &data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
 
@@ -320,7 +382,7 @@ async fn delete(
     let page = 1;
     let posts_per_page = DEFAULT_POSTS_PER_PAGE;
 
-    let (posts, total_count, num_pages) = Query::find_posts_of_user_in_page(conn, user_id, page, posts_per_page)
+    let (posts, total_count, num_pages) = Query::find_posts_of_user_and_status_in_page(conn, user_id, STATUS_PUBLISHED, page, posts_per_page)
         .await
         .expect("Cannot find posts in page");
 
@@ -332,7 +394,8 @@ async fn delete(
     let mut ftp = FtpStream::connect((host, 21)).unwrap();
     ftp.login(username, password).unwrap();
 
-    publish_post_page(&mut ftp, &data, user_id, user_nick, user_registering_time, &mut saved_post).await;
+    unpublish_post_page(&mut ftp, &data, user_id, user_nick, user_registering_time, &mut saved_post).await;
+    // publish_post_page(&mut ftp, &data, user_id, user_nick, user_registering_time, &mut saved_post).await;
 
     publish_home_page(&mut ftp, &data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
 
@@ -364,6 +427,9 @@ async fn publish_post_page(ftp: &mut FtpStream, data: &web::Data<AppState>, auth
     let _ = ftp.mkdir(format!("/{}", author_id).as_str());
     let _ = ftp.cwd(format!("/{}", author_id).as_str());
     let _ = ftp.put(format!("{}.html", post.id).as_str(), &mut Cursor::new(&body));
+    if post.old_sharing_path.len() > 0 && post.old_sharing_path != post.sharing_path {
+        let _ = ftp.rm(format!("{}.html", post.old_sharing_path).as_str());
+    }
     if post.sharing_path.len() > 0 {
         let _ = ftp.put(format!("{}.html", post.sharing_path).as_str(), &mut Cursor::new(&body));
     }
@@ -371,12 +437,37 @@ async fn publish_post_page(ftp: &mut FtpStream, data: &web::Data<AppState>, auth
         let _ = ftp.mkdir(format!("/{}", author_nick).as_str());
         let _ = ftp.cwd(format!("/{}", author_nick).as_str());
         let _ = ftp.put(format!("{}.html", post.id).as_str(), &mut Cursor::new(&body));
+        if post.old_sharing_path.len() > 0 && post.old_sharing_path != post.sharing_path {
+            let _ = ftp.rm(format!("{}.html", post.old_sharing_path).as_str());
+        }
         if post.sharing_path.len() > 0 {
             let _ = ftp.put(format!("{}.html", post.sharing_path).as_str(), &mut Cursor::new(&body));
         }
     }
 
     print!("Published post page {} for user {}", post.id, author_id);
+
+    false
+}
+
+async fn unpublish_post_page(ftp: &mut FtpStream, data: &web::Data<AppState>, author_id: i32, author_nick: &str, author_registering_time: i64,
+        post: &mut post::Model) -> bool {
+    print!("Unpublishing post page {} for user {}", post.id, author_id);
+
+    let _ = ftp.cwd(format!("/{}", author_id).as_str());
+    let _ = ftp.rm(format!("{}.html", post.id).as_str());
+    if post.sharing_path.len() > 0 {
+        let _ = ftp.rm(format!("{}.html", post.sharing_path).as_str());
+    }
+    if author_nick.len() > 0 {
+        let _ = ftp.cwd(format!("/{}", author_nick).as_str());
+        let _ = ftp.rm(format!("{}.html", post.id).as_str());
+        if post.sharing_path.len() > 0 {
+            let _ = ftp.rm(format!("{}.html", post.sharing_path).as_str());
+        }
+    }
+
+    print!("Unpublished post page {} for user {}", post.id, author_id);
 
     false
 }
@@ -390,7 +481,7 @@ pub async fn publish_home_page(ftp: &mut FtpStream, data: &web::Data<AppState>, 
     }
 
     let template = &data.templates;
-    let mut ctx = tera::Context::new();
+    let mut ctx: tera::Context = tera::Context::new();
     ctx.insert("template", "home");
     ctx.insert("author_id", &author_id);
     ctx.insert("author_nick", author_nick);

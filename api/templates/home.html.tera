@@ -59,9 +59,10 @@
       <div class="post" _post_id="{{ post.id }}" _post_author_id="{{ author_id }}" _post_author_nick="{{ author_nick }}" _post_sharing_path="{{ post.sharing_path }}" _post_status="{{ post.status }}">
         <div class="post_title"><span>{{ post.title }}</span></div>
         <div class="post_panel">
-          <span class="post_updating"><button class="post_updating_button">编辑</button></span>
-          <span class="post_deleting"><button class="post_deleting_button">删除</button></span>
-          <span class="post_publishing"><button class="post_publishing_button">发布</button></span>
+          <span class="post_updating"><button class="post_updating_button" disabled="true">编辑</button></span>
+          <span class="post_publishing"><button class="post_publishing_button" disabled="true">发表</button></span>
+          <span class="post_unpublishing"><button class="post_unpublishing_button" disabled="true">撤销</button></span>
+          <span class="post_deleting"><button class="post_deleting_button" disabled="true">删除</button></span>
         </div>
         <div class="post_time">{{ post.updated_at_formatted }}</div>
       </div>

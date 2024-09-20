@@ -167,6 +167,7 @@ fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(post_controller::update);
     cfg.service(post_controller::delete);
     cfg.service(post_controller::publish);
+    cfg.service(post_controller::unpublish);
 
     cfg.service(user_controller::grant_token);
     cfg.service(user_controller::list);

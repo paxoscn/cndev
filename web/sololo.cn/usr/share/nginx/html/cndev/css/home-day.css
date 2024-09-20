@@ -227,12 +227,6 @@ legend {
     display: table-cell;
     padding-right: 100px;
 }
-.post_panel > span {
-    visibility: hidden;
-}
-.post_publishing {
-    visibility: hidden;
-}
 .post_time {
     color: dodgerblue;
     font-size: 15px;
