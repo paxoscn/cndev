@@ -227,6 +227,25 @@ legend {
 .post_panel {
     display: table-cell;
     padding-right: 100px;
+    font-size: 3px;
+}
+.post_panel button {
+    border: 0px;
+	color: black;
+	background-color: lawngreen;
+    font-size: 12px;
+	cursor: pointer;
+}
+.post_panel button:disabled {
+	background-color: grey;
+	cursor: auto;
+}
+.post:hover button {
+	background-color: black;
+	color: lawngreen;
+}
+.post:hover button:disabled {
+	background-color: grey;
 }
 .post_time {
     color: dodgerblue;
