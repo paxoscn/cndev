@@ -5,30 +5,34 @@ const STATUS_DELETED = 3;
 
 function onInit(user) {
     document.getElementById("content_main").style.display = "block";
+
+    document.getElementById("joined_days").innerHTML = Math.ceil((Date.now() - author_registering_time * 1000) / 86400000);
     
-    document.getElementById("button_to_post_adding_page").addEventListener('click', addPost);
-
-    const xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-                var postsRes = "";
-                eval("postsRes = " + xhr.responseText);
-
-                onDraftPosts(user, postsRes);
-            } else {
-                console.log(xhr.status);
-                showToast("");
+    if (user != null) {
+        document.getElementById("button_to_post_adding_page").addEventListener('click', addPost);
+    
+        const xhr = new XMLHttpRequest();
+    
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    var postsRes = "";
+                    eval("postsRes = " + xhr.responseText);
+    
+                    onDraftPosts(user, postsRes);
+                } else {
+                    console.log(xhr.status);
+                    showToast("");
+                }
             }
-        }
-    };
-
-    xhr.open("GET", "https://www.sololo.cn/cndev/api/posts?status=" + STATUS_DRAFT, true);
-
-    xhr.setRequestHeader("Authorization", "Bearer " + user.token);
-
-    xhr.send(null);
+        };
+    
+        xhr.open("GET", "https://www.sololo.cn/cndev/api/posts?status=" + STATUS_DRAFT, true);
+    
+        xhr.setRequestHeader("Authorization", "Bearer " + user.token);
+    
+        xhr.send(null);
+    }
 }
 
 function onDraftPosts(user, postsRes) {

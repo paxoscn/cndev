@@ -148,7 +148,6 @@ window.addEventListener('load', function () {
     var user_json = localStorage.getItem('user');
     if (user_json != null) {
         eval("user = " + user_json);
-
         document.querySelectorAll("#logout_div").forEach((div) => {
             div.style.display = "block";
         });

@@ -485,7 +485,7 @@ pub async fn publish_home_page(ftp: &mut FtpStream, data: &web::Data<AppState>, 
     ctx.insert("template", "home");
     ctx.insert("author_id", &author_id);
     ctx.insert("author_nick", author_nick);
-    ctx.insert("author_register_days", &format!("{}", chrono::Utc::now().naive_utc().signed_duration_since(chrono::NaiveDateTime::from_timestamp_opt(author_registering_time, 0).unwrap()).num_days()));
+    ctx.insert("author_registering_time", format!("{}", author_registering_time).as_str());
     ctx.insert("posts", &posts);
     ctx.insert("page", &page);
     ctx.insert("posts_per_page", &posts_per_page);
