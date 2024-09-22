@@ -8,7 +8,11 @@ function onInit(user) {
 
     document.getElementById("joined_days").innerHTML = Math.ceil((Date.now() - author_registering_time * 1000) / 86400000);
     
-    if (user != null) {
+    if (user != null && user.id === author_id) {
+        document.querySelectorAll(".post_panel button").forEach((el) => {
+            el.style.visibility = "visible";
+        });
+
         document.getElementById("button_to_post_adding_page").addEventListener('click', addPost);
     
         const xhr = new XMLHttpRequest();
@@ -53,6 +57,10 @@ function onDraftPosts(user, postsRes) {
         `;
     });
     document.getElementById("posts").innerHTML = draftPostsHtml + document.getElementById("posts").innerHTML;
+
+    document.querySelectorAll(".post_panel button").forEach((el) => {
+        el.style.visibility = "visible";
+    });
 
     document.querySelectorAll(".post").forEach((el) => {
         el.querySelector(".post_title").addEventListener('click', function (e) {

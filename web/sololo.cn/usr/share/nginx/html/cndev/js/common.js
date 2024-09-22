@@ -137,10 +137,8 @@ function logIn() {
     document.getElementById("content_main").style.display = "none";
 }
 
-function logOut() {
-    localStorage.removeItem("user");
-
-    window.location.reload();
+function goToSettings() {
+    window.location.href = "/settings";
 }
 
 window.addEventListener('load', function () {
@@ -148,7 +146,7 @@ window.addEventListener('load', function () {
     var user_json = localStorage.getItem('user');
     if (user_json != null) {
         eval("user = " + user_json);
-        document.querySelectorAll("#logout_div").forEach((div) => {
+        document.querySelectorAll("#settings_div").forEach((div) => {
             div.style.display = "block";
         });
     } else {
@@ -177,8 +175,8 @@ window.addEventListener('load', function () {
     document.getElementById("button_sending").addEventListener('click', sendCode);
     document.getElementById("button_verifying").addEventListener('click', verifyCode);
 
-    document.querySelectorAll("#logout_button").forEach((button) => {
-        button.addEventListener('click', logOut);
+    document.querySelectorAll("#settings_button").forEach((button) => {
+        button.addEventListener('click', goToSettings);
     });
 
     document.querySelectorAll("#login_button").forEach((button) => {

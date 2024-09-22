@@ -5,8 +5,8 @@ body, html {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background-color: whitesmoke;
-	color: black;
+	background-color: black;
+	color: white;
 }
 
 .content {
@@ -30,7 +30,7 @@ body, html {
 		border-right: 10px solid orange;
     }
     50%, 100% {
-		border-right: 10px solid #DDD;
+		border-right: 10px solid #444;
     }
 }
 
@@ -40,13 +40,13 @@ body, html {
 	padding-right: 0px;
 	border: 0px solid darkorange;
 	border-right: 10px solid darkorange;
-	background-color: #DDD;
+	background-color: #444;
 	color: darkorange;
 	animation: blinking 1s linear infinite;
 }
 
 .input:focus-within ~ .run {
-	color: green;
+	color: lightgreen;
 }
 
 .quote {
@@ -55,7 +55,7 @@ body, html {
 
 #outputs {
 	margin-top: 50px;
-	background-color: #EEE;
+	background-color: #333;
 	border-top: 2px solid orange;
 	visibility: hidden;
 	font-family: serif;
@@ -66,16 +66,16 @@ body, html {
 }
 
 .package {
-	color: red;
+	color: lightcoral;
 	font-weight: bold;
 }
 
 .instance {
-	color: red;
+	color: lightcoral;
 }
 
 .method {
-	color: dodgerblue;
+	color: lightskyblue;
 }
 
 .param_name {
@@ -88,17 +88,17 @@ body, html {
 
 .run {
 	font-size: 37px;
-	color: white;
+	color: black;
     vertical-align: middle;
 	cursor: pointer;
 }
 
 .event_time {
-	color: dimgray;
+	color: lightgray;
 }
 
 .log_info {
-	color: green;
+	color: lightgreen;
 	font-weight: bold;
 }
 
@@ -144,65 +144,46 @@ body, html {
 .clear {
     clear: both;
 }
-#panel {
-    position: absolute;
-    top: 0;
-    right: 0;
+#content_main > div {
+    padding: 5px;
 }
-#canvas {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    padding: 20px;
-}
-#title_and_author {
-    font-family: monospace;
-    display: flex;
-    align-items: flex-end;
-}
-.post_title {
-    font-size: 50px;
-    font-weight: bold;
-}
-.edit {
-    display: none;
-    font-size: 15px;
-    padding-left: 5px;
+button {
+    margin-top: 10px;
+    width: 300px;
+    font-size: 18px;
+    padding-top: 5px;
     padding-bottom: 5px;
+	background-color: black;
+    border: 2px solid lawngreen;
+    color: lawngreen;
+	cursor: pointer;
 }
-.edit > a {
-	color: darkorange;
-    text-decoration-line: none;
-}
-.edit > a:hover {
+button:hover {
+    color: black;
+	background-color: lawngreen;
     text-decoration-line: underline;
 }
-.author_avatar_and_nick {
-    padding-left: 50px;
-	color: darkorange;
-    font-size: 30px;
-    cursor: pointer;
+#logout_button {
+	background-color: red;
+    border: 2px solid white;
+    color: white;
 }
-.author_avatar_and_nick:hover {
-    text-decoration-line: underline;
+#logout_button:hover {
+    color: red;
+	background-color: white;
 }
 #avatar {
-    width: 40px;
-    height: 40px;
+    width: 300px;
+    height: 300px;
     image-rendering: pixelated;
-    background-color: skyblue;
-    border-radius: 20%;
-    vertical-align: baseline;
+    background-color: midnightblue;
+    border-radius: 10%;
 }
-.post_time {
-    font-size: 20px;
-    padding-left: 50px;
-    padding-bottom: 2px;
-    color: dodgerblue;
-}
-#post_text {
-    display: none;
-}
-textarea {
-    display: none;
+#nick {
+    margin-top: 10px;
+    width: 300px;
+    font-size: 18px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+	background-color: #ddd;
 }

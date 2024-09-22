@@ -10,6 +10,7 @@
 {% block scripts %}
 <script src="https://www.sololo.cn/cndev/js/home.js"></script>
 <script>
+var author_id = {{ author_id }};
 var author_registering_time = {{ author_registering_time }};
 </script>
 {% endblock scripts %}
@@ -21,8 +22,8 @@ var author_registering_time = {{ author_registering_time }};
   <div id="login_div" class="left">
     <button id="login_button">登录</button>
   </div>
-	<div id="logout_div" class="left">
-    <button id="logout_button">登出</button>
+	<div id="settings_div" class="left">
+    <button id="settings_button">设置</button>
 	</div>
 	<div class="clear"></div>
 </div>

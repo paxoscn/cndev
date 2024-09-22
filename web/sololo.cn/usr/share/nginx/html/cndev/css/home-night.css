@@ -130,7 +130,7 @@ body, html {
     z-index: 9999;
 }
 
-#login_div, #logout_div {
+#login_div, #settings_div {
     display: none;
 }
 
@@ -235,6 +235,7 @@ legend {
 	background-color: lawngreen;
     font-size: 12px;
 	cursor: pointer;
+    visibility: hidden;
 }
 .post_panel button:disabled {
 	background-color: grey;

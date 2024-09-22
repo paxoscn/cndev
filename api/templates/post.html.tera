@@ -25,8 +25,8 @@ var post_text = ```
   <div id="login_div" class="left">
     <button id="login_button">登录</button>
   </div>
-  <div id="logout_div" class="left">
-    <button id="logout_button">登出</button>
+  <div id="settings_div" class="left">
+    <button id="settings_button">设置</button>
   </div>
   <div class="clear"></div>
 </div>
