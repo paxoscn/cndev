@@ -14,6 +14,8 @@ function onInit(user) {
     document.getElementById("joined_days").innerHTML = Math.ceil((Date.now() - author_registering_time * 1000 + 1) / 86400000);
     
     if (user != null && user.id === author_id) {
+        document.querySelector("legend").style.display = "block";
+        
         document.querySelectorAll(".post_panel button").forEach((el) => {
             el.style.visibility = "visible";
         });

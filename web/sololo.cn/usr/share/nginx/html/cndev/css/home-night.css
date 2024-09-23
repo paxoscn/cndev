@@ -182,6 +182,7 @@ legend {
     width: auto;
     margin-left: auto;
     margin-right: auto;
+    display: none;
 }
 #button_to_post_adding_page {
     border: 2px solid lawngreen;
