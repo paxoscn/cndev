@@ -6,6 +6,8 @@ const STATUS_DELETED = 3;
 function onInit(user) {
     document.getElementById("content_main").style.display = "block";
 
+    tryApplyAvatar(author_id);
+
     var urlSuffix = window.location.href.replace(/.*\//, "");
     if (!/^\d+$/.test(urlSuffix)) {
         var nick = urlSuffix;

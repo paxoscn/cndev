@@ -141,6 +141,32 @@ function goToSettings() {
     window.location.href = "/settings";
 }
 
+function tryApplyAvatar(user_id, callback) {
+    const xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                document.getElementById("avatar").src = "https://www.sololo.cn/cndev/_avatars/" + user_id + ".png";
+
+                if (callback) {
+                    callback(true);
+                }
+            } else {
+                if (callback) {
+                    callback(false);
+                }
+
+                showToast("");
+            }
+        }
+    };
+
+    xhr.open("GET", "https://www.sololo.cn/cndev/_avatars/" + user_id + ".png", true);
+
+    xhr.send(null);
+}
+
 window.addEventListener('load', function () {
     var user = null;
     var user_json = localStorage.getItem('user');

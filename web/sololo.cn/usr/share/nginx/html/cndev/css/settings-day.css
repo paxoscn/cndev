@@ -178,6 +178,10 @@ button:hover {
     image-rendering: pixelated;
     background-color: skyblue;
     border-radius: 10%;
+	cursor: pointer;
+}
+input[type="file"] {
+    display: none;
 }
 #nick {
     margin-top: 10px;

@@ -1,5 +1,5 @@
 
-use std::ops::Index;
+use std::{io::Read, ops::Index};
 
 use cndev_service::{
     Mutation, Query,
@@ -17,9 +17,13 @@ use std::env;
 
 use ftp::FtpStream;
 
+use std::io::Write;
+
 use actix_web::{
-    error, get, post, put, web, Error, HttpRequest, HttpResponse, Result,
+    error, get, post, put, delete, web, Error, HttpRequest, HttpResponse, Result,
 };
+
+use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 
 use std::net::IpAddr;
 
@@ -66,6 +70,17 @@ struct Claims {
     nick: String,
     registering_time: i64,
     exp: usize,
+}
+
+#[derive(Debug, MultipartForm)]
+struct AvatarUploadingForm {
+    #[multipart(limit = "100KB")]
+    avatar: TempFile,
+}
+
+#[derive(Serialize)]
+struct AvatarUploadingResponse {
+    uploaded_file_name: String,
 }
 
 #[get("/users/")]
@@ -298,6 +313,97 @@ async fn delete(data: web::Data<AppState>, id: web::Path<i32>) -> Result<HttpRes
     Ok(HttpResponse::Found()
         .append_header(("location", "/"))
         .finish())
+}
+
+#[put("/settings/avatar")]
+pub async fn upload_avatar(
+    req: HttpRequest,
+    data: web::Data<AppState>,
+    MultipartForm(form): MultipartForm<AvatarUploadingForm>,
+) -> Result<HttpResponse, Error> {
+    if form.avatar.size < 1 || form.avatar.size > 1024 * 100 {
+        return Ok(HttpResponse::BadRequest().finish());
+    }
+
+    let user_id = match req.headers().get("id") {
+        Some(id) => id.to_str().unwrap().parse::<i32>().unwrap(),
+        None => {
+            return Ok(HttpResponse::NotFound().finish())
+        }
+    };
+
+    // Just treat all images as png.
+    let uploaded_file_name = format!("{}.png", user_id);
+    // let uploaded_file_name = match form.avatar.file_name {
+    //     Some(file_name) => {
+    //         if file_name.contains(".") {
+    //             let file_name_split = file_name.split(".").collect::<Vec<&str>>();
+    //             let file_extension = file_name_split.last().unwrap_or(&"png").to_lowercase();
+
+    //             if file_extension != "png" && file_extension != "jpg" && file_extension != "jpeg" && file_extension != "gif" && file_extension != "webp" {
+    //                 return Ok(HttpResponse::BadRequest().finish());
+    //             }
+                
+    //             format!("{}.{}", user_id, file_extension)
+    //         } else {
+    //             format!("{}.png", user_id)
+    //         }
+    //     }
+    //     None => {
+    //         format!("{}.png", user_id)
+    //     }
+    // };
+
+    let mut file = std::fs::File::create(format!("./web/sololo.cn/usr/share/nginx/html/cndev/_avatars/{}", uploaded_file_name)).unwrap();
+    let mut content = vec![];
+    let mut avatar_file = form.avatar.file;
+    avatar_file.read_to_end(&mut content).unwrap();
+    file.write_all(&content).unwrap();
+
+    Ok(HttpResponse::Ok().json(AvatarUploadingResponse {
+        uploaded_file_name: uploaded_file_name,
+    }))
+}
+
+#[delete("/settings/avatar")]
+pub async fn remove_avatar(
+    req: HttpRequest,
+) -> Result<HttpResponse, Error> {
+    let user_id = match req.headers().get("id") {
+        Some(id) => id.to_str().unwrap().parse::<i32>().unwrap(),
+        None => {
+            return Ok(HttpResponse::NotFound().finish())
+        }
+    };
+
+    // Just treat all images as png.
+    let uploaded_file_name = format!("{}.png", user_id);
+    // let uploaded_file_name = match form.avatar.file_name {
+    //     Some(file_name) => {
+    //         if file_name.contains(".") {
+    //             let file_name_split = file_name.split(".").collect::<Vec<&str>>();
+    //             let file_extension = file_name_split.last().unwrap_or(&"png").to_lowercase();
+
+    //             if file_extension != "png" && file_extension != "jpg" && file_extension != "jpeg" && file_extension != "gif" && file_extension != "webp" {
+    //                 return Ok(HttpResponse::BadRequest().finish());
+    //             }
+                
+    //             format!("{}.{}", user_id, file_extension)
+    //         } else {
+    //             format!("{}.png", user_id)
+    //         }
+    //     }
+    //     None => {
+    //         format!("{}.png", user_id)
+    //     }
+    // };
+
+    let file_path = format!("./web/sololo.cn/usr/share/nginx/html/cndev/_avatars/{}", uploaded_file_name);
+    if std::fs::remove_file(&file_path).is_err() {
+        return Ok(HttpResponse::InternalServerError().finish());
+    }
+
+    Ok(HttpResponse::Ok().finish())
 }
 
 #[put("/settings")]
