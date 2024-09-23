@@ -436,13 +436,16 @@ async fn publish_post_page(ftp: &mut FtpStream, data: &web::Data<AppState>, auth
     if author_nick.len() > 0 {
         let _ = ftp.mkdir(format!("/{}", author_nick).as_str());
         let _ = ftp.cwd(format!("/{}", author_nick).as_str());
-        let _ = ftp.put(format!("{}.html", post.id).as_str(), &mut Cursor::new(&body));
-        if post.old_sharing_path.len() > 0 && post.old_sharing_path != post.sharing_path {
-            let _ = ftp.rm(format!("{}.html", post.old_sharing_path).as_str());
-        }
-        if post.sharing_path.len() > 0 {
-            let _ = ftp.put(format!("{}.html", post.sharing_path).as_str(), &mut Cursor::new(&body));
-        }
+    } else {
+        let _ = ftp.mkdir(format!("/{}_", author_id).as_str());
+        let _ = ftp.cwd(format!("/{}_", author_id).as_str());
+    }
+    let _ = ftp.put(format!("{}.html", post.id).as_str(), &mut Cursor::new(&body));
+    if post.old_sharing_path.len() > 0 && post.old_sharing_path != post.sharing_path {
+        let _ = ftp.rm(format!("{}.html", post.old_sharing_path).as_str());
+    }
+    if post.sharing_path.len() > 0 {
+        let _ = ftp.put(format!("{}.html", post.sharing_path).as_str(), &mut Cursor::new(&body));
     }
 
     print!("Published post page {} for user {}", post.id, author_id);
@@ -461,10 +464,12 @@ async fn unpublish_post_page(ftp: &mut FtpStream, data: &web::Data<AppState>, au
     }
     if author_nick.len() > 0 {
         let _ = ftp.cwd(format!("/{}", author_nick).as_str());
-        let _ = ftp.rm(format!("{}.html", post.id).as_str());
-        if post.sharing_path.len() > 0 {
-            let _ = ftp.rm(format!("{}.html", post.sharing_path).as_str());
-        }
+    } else {
+        let _ = ftp.cwd(format!("/{}_", author_id).as_str());
+    }
+    let _ = ftp.rm(format!("{}.html", post.id).as_str());
+    if post.sharing_path.len() > 0 {
+        let _ = ftp.rm(format!("{}.html", post.sharing_path).as_str());
     }
 
     print!("Unpublished post page {} for user {}", post.id, author_id);
@@ -501,6 +506,8 @@ pub async fn publish_home_page(ftp: &mut FtpStream, data: &web::Data<AppState>, 
     let _ = ftp.put(format!("{}.html", author_id).as_str(), &mut Cursor::new(&body));
     if author_nick.len() > 0 {
         let _ = ftp.put(format!("{}.html", author_nick).as_str(), &mut Cursor::new(&body));
+    } else {
+        let _ = ftp.put(format!("{}_.html", author_id).as_str(), &mut Cursor::new(&body));
     }
 
     print!("Published home page of user {}", author_id);

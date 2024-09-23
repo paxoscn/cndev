@@ -176,6 +176,7 @@ fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(user_controller::update);
     cfg.service(user_controller::delete);
     cfg.service(user_controller::send_sms);
+    cfg.service(user_controller::change_nick);
 }
 
 pub fn main() {

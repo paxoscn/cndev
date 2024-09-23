@@ -55,6 +55,11 @@ pub struct Params {
     users_per_page: Option<u64>,
 }
 
+#[derive(Deserialize)]
+struct NickChangingRequest {
+    nick: String,
+}
+
 #[derive(Debug, Serialize)]
 struct Claims {
     id: i32,
@@ -293,6 +298,86 @@ async fn delete(data: web::Data<AppState>, id: web::Path<i32>) -> Result<HttpRes
     Ok(HttpResponse::Found()
         .append_header(("location", "/"))
         .finish())
+}
+
+#[put("/settings")]
+async fn change_nick(
+    req: HttpRequest,
+    data: web::Data<AppState>,
+    nick_changing_request_json: web::Json<NickChangingRequest>,
+) -> Result<HttpResponse, Error> {
+    let user_id = match req.headers().get("id") {
+        Some(id) => id.to_str().unwrap().parse::<i32>().unwrap(),
+        None => {
+            return Ok(HttpResponse::NotFound().finish())
+        }
+    };
+    let user_old_nick = req.headers().get("nick").unwrap().to_str().unwrap();
+    let user_registering_time = req.headers().get("reg").unwrap().to_str().unwrap().parse::<i64>().unwrap();
+
+    let nick_changing_request = nick_changing_request_json.into_inner();
+
+    if nick_changing_request.nick == user_old_nick {
+        return Ok(HttpResponse::Ok().finish())
+    }
+
+    let conn = &data.conn;
+    
+    match Mutation::change_nick(conn,
+            user_id,
+            nick_changing_request.nick.to_owned()).await {
+        Ok(_) => {},
+        Err(e) => {
+            print!("Database error: {:?}", e);
+
+            return Ok(HttpResponse::InternalServerError().finish())
+        }
+    };
+
+    let host = "127.0.0.1";
+    let username = "root";
+    let password = "root";
+    
+    // Bad vsftpd may hang here. Restart vsftpd to fix.
+    let mut ftp = FtpStream::connect((host, 21)).unwrap();
+    ftp.login(username, password).unwrap();
+
+    if nick_changing_request.nick.len() < 1 {
+        let _ = ftp.rename(format!("{}.html", user_old_nick).as_str(), format!("{}_.html", user_id).as_str());
+        let _ = ftp.rename(format!("{}", user_old_nick).as_str(), format!("{}_", user_id).as_str());
+    } else {
+        if user_old_nick.len() < 1 {
+            let _ = ftp.rename(format!("{}_.html", user_id).as_str(), format!("{}.html", nick_changing_request.nick).as_str());
+            let _ = ftp.rename(format!("{}_", user_id).as_str(), format!("{}", nick_changing_request.nick).as_str());
+        } else {
+            let _ = ftp.rename(format!("{}.html", user_old_nick).as_str(), format!("{}.html", nick_changing_request.nick).as_str());
+            let _ = ftp.rename(format!("{}", user_old_nick).as_str(), format!("{}", nick_changing_request.nick).as_str());
+        }
+    }
+
+    // Double-quitting leads panicking.
+    ftp.quit().unwrap();
+
+    let my_claims = Claims {
+        id: user_id,
+        nick: nick_changing_request.nick.to_owned(),
+        registering_time: user_registering_time,
+        exp: (Utc::now().timestamp() + 86400 * 365) as usize, // UNIX timestamp for expiration
+    };
+    
+    let jwt_secret = env::var("APP_VERSION").expect("APP_VERSION is not set");
+    
+    let token = encode(&Header::new(Algorithm::HS256), &my_claims, &EncodingKey::from_secret(jwt_secret.as_ref())).unwrap();
+    
+    println!("{}", token);
+
+    Ok(HttpResponse::Ok().json(TokenGrantingResponse {
+        token: token,
+        id: user_id,
+        nick: nick_changing_request.nick.to_owned(),
+        registering_time: user_registering_time,
+        user_created: false,
+    }))
 }
 
 fn is_internal_ip(ip: &str) -> bool {

@@ -50,10 +50,10 @@ impl Mutation {
         let result = post::ActiveModel {
             id: post.id,
             user_id: post.user_id,
-            title: Set(title.to_owned()),
-            sharing_path: Set(post.sharing_path.as_ref().to_owned()),
-            tags: Set(tags.to_owned()),
-            text: Set(text.to_owned()),
+            title: Set(title),
+            sharing_path: Set(sharing_path),
+            tags: Set(tags),
+            text: Set(text),
             status: Set(post.status.as_ref().to_owned()),
             created_at: Set(post.created_at.as_ref().to_owned()),
             updated_at: Set(Utc::now().naive_utc().to_owned()),
@@ -212,5 +212,23 @@ impl Mutation {
 
     pub async fn delete_all_users(db: &DbConn) -> Result<DeleteResult, DbErr> {
         User::delete_many().exec(db).await
+    }
+
+    pub async fn change_nick(
+        db: &DbConn,
+        user_id: i32,
+        nick: String,
+    ) -> Result<user::Model, DbErr> {
+        let mut user: user::ActiveModel = User::find_by_id(user_id)
+            .one(db)
+            .await?
+            .ok_or(DbErr::Custom("Cannot find user.".to_owned()))
+            .map(Into::into)?;
+
+        user.nick = Set(nick);
+
+        user
+        .update(db)
+        .await
     }
 }

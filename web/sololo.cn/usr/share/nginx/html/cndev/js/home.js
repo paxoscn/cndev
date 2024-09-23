@@ -6,7 +6,12 @@ const STATUS_DELETED = 3;
 function onInit(user) {
     document.getElementById("content_main").style.display = "block";
 
-    document.getElementById("joined_days").innerHTML = Math.ceil((Date.now() - author_registering_time * 1000) / 86400000);
+    var urlSuffix = window.location.href.replace(/.*\//, "");
+    if (!/^\d+$/.test(urlSuffix)) {
+        var nick = urlSuffix;
+        document.getElementById("nick").innerHTML = nick;
+    }
+    document.getElementById("joined_days").innerHTML = Math.ceil((Date.now() - author_registering_time * 1000 + 1) / 86400000);
     
     if (user != null && user.id === author_id) {
         document.querySelectorAll(".post_panel button").forEach((el) => {
