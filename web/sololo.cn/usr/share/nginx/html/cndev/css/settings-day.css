@@ -163,6 +163,16 @@ button:hover {
 	background-color: darkorange;
     text-decoration-line: underline;
 }
+button:disabled {
+	cursor: auto;
+    border: 2px solid #999;
+    color: #999;
+}
+button:disabled:hover {
+    color: #999;
+    background-color: white;
+    text-decoration-line: none;
+}
 #logout_button {
 	background-color: red;
     border: 2px solid darkorange;

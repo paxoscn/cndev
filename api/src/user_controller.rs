@@ -179,6 +179,8 @@ async fn grant_token(
 
     match check_sms_code(&data.redis, &token_granting_request.tel, &token_granting_request.sms_code) {
         Some(res) => {
+            print!("Failed to check SMS code");
+
             return res;
         }
         None => {}
@@ -225,9 +227,11 @@ async fn grant_token(
 
     match user {
         Some(user) => {
+            let nick = user.nick.unwrap_or(String::new());
+            
             let my_claims = Claims {
                 id: user.id,
-                nick: user.nick.to_owned(),
+                nick: nick.to_owned(),
                 registering_time: user.created_at.timestamp(),
                 exp: (Utc::now().timestamp() + 86400 * 365) as usize, // UNIX timestamp for expiration
             };
@@ -247,13 +251,13 @@ async fn grant_token(
                 let mut ftp = FtpStream::connect((host, 21)).unwrap();
                 ftp.login(username, password).unwrap();
 
-                publish_home_page(&mut ftp, &data, user.id, user.nick.as_str(), user.created_at.timestamp(), Vec::new(), 0, 1, 1, DEFAULT_POSTS_PER_PAGE).await;
+                publish_home_page(&mut ftp, &data, user.id, nick.as_str(), user.created_at.timestamp(), Vec::new(), 0, 1, 1, DEFAULT_POSTS_PER_PAGE).await;
             }
         
             Ok(HttpResponse::Created().json(TokenGrantingResponse {
                 token: token,
                 id: user.id,
-                nick: user.nick,
+                nick: nick,
                 registering_time: user.created_at.timestamp(),
                 user_created: user_created,
             }))
@@ -422,8 +426,11 @@ async fn change_nick(
     let user_registering_time = req.headers().get("reg").unwrap().to_str().unwrap().parse::<i64>().unwrap();
 
     let nick_changing_request = nick_changing_request_json.into_inner();
+    let user_new_nick = nick_changing_request.nick.trim().to_lowercase()
+            .replace(|c: char| c != '-' && !c.is_alphanumeric() && !c.is_numeric(), "");
 
-    if nick_changing_request.nick == user_old_nick {
+    // Not allowed to be empty.
+    if user_new_nick.len() < 1 || user_new_nick == user_old_nick {
         return Ok(HttpResponse::Ok().finish())
     }
 
@@ -431,7 +438,7 @@ async fn change_nick(
     
     match Mutation::change_nick(conn,
             user_id,
-            nick_changing_request.nick.to_owned()).await {
+            user_new_nick.to_owned()).await {
         Ok(_) => {},
         Err(e) => {
             print!("Database error: {:?}", e);
@@ -448,25 +455,26 @@ async fn change_nick(
     let mut ftp = FtpStream::connect((host, 21)).unwrap();
     ftp.login(username, password).unwrap();
 
-    if nick_changing_request.nick.len() < 1 {
-        let _ = ftp.rename(format!("{}.html", user_old_nick).as_str(), format!("{}_.html", user_id).as_str());
-        let _ = ftp.rename(format!("{}", user_old_nick).as_str(), format!("{}_", user_id).as_str());
-    } else {
+    // Not allowed to be empty.
+    // if nick_changing_request.nick.len() < 1 {
+    //     let _ = ftp.rename(format!("{}.html", user_old_nick).as_str(), format!("{}_.html", user_id).as_str());
+    //     let _ = ftp.rename(format!("{}", user_old_nick).as_str(), format!("{}_", user_id).as_str());
+    // } else {
         if user_old_nick.len() < 1 {
-            let _ = ftp.rename(format!("{}_.html", user_id).as_str(), format!("{}.html", nick_changing_request.nick).as_str());
-            let _ = ftp.rename(format!("{}_", user_id).as_str(), format!("{}", nick_changing_request.nick).as_str());
+            let _ = ftp.rename(format!("{}_.html", user_id).as_str(), format!("{}.html", user_new_nick).as_str());
+            let _ = ftp.rename(format!("{}_", user_id).as_str(), format!("{}", user_new_nick).as_str());
         } else {
-            let _ = ftp.rename(format!("{}.html", user_old_nick).as_str(), format!("{}.html", nick_changing_request.nick).as_str());
-            let _ = ftp.rename(format!("{}", user_old_nick).as_str(), format!("{}", nick_changing_request.nick).as_str());
+            let _ = ftp.rename(format!("{}.html", user_old_nick).as_str(), format!("{}.html", user_new_nick).as_str());
+            let _ = ftp.rename(format!("{}", user_old_nick).as_str(), format!("{}", user_new_nick).as_str());
         }
-    }
+    // }
 
     // Double-quitting leads panicking.
     ftp.quit().unwrap();
 
     let my_claims = Claims {
         id: user_id,
-        nick: nick_changing_request.nick.to_owned(),
+        nick: user_new_nick.to_owned(),
         registering_time: user_registering_time,
         exp: (Utc::now().timestamp() + 86400 * 365) as usize, // UNIX timestamp for expiration
     };
@@ -480,7 +488,7 @@ async fn change_nick(
     Ok(HttpResponse::Ok().json(TokenGrantingResponse {
         token: token,
         id: user_id,
-        nick: nick_changing_request.nick.to_owned(),
+        nick: user_new_nick.to_owned(),
         registering_time: user_registering_time,
         user_created: false,
     }))

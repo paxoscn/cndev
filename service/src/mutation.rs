@@ -164,7 +164,7 @@ impl Mutation {
         tel: &str,
     ) -> Result<user::ActiveModel, DbErr> {
         user::ActiveModel {
-            nick: Set("".to_owned()),
+            nick: Set(None),
             name: Set("".to_owned()),
             tel: Set(tel.to_owned()),
             mail: Set("".to_owned()),
@@ -188,7 +188,7 @@ impl Mutation {
 
         user::ActiveModel {
             id: user.id,
-            nick: Set(form_data.name.to_owned()),
+            nick: Set(Some(form_data.name.to_owned())),
             name: Set(form_data.name.to_owned()),
             tel: Set(form_data.name.to_owned()),
             mail: Set(form_data.name.to_owned()),
@@ -225,7 +225,7 @@ impl Mutation {
             .ok_or(DbErr::Custom("Cannot find user.".to_owned()))
             .map(Into::into)?;
 
-        user.nick = Set(nick);
+        user.nick = Set(Some(nick));
 
         user
         .update(db)

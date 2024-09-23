@@ -163,6 +163,16 @@ button:hover {
 	background-color: lawngreen;
     text-decoration-line: underline;
 }
+button:disabled {
+	cursor: auto;
+    border: 2px solid #aaa;
+    color: #aaa;
+}
+button:disabled:hover {
+    color: #aaa;
+    background-color: black;
+    text-decoration-line: none;
+}
 #logout_button {
 	background-color: red;
     border: 2px solid white;

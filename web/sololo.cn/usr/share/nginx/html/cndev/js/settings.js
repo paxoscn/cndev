@@ -25,7 +25,12 @@ function onInit(user) {
 
     document.getElementById("avatar").addEventListener('click', openFileInput);
 
-    document.getElementById("nick_button").addEventListener('click', changeNick);
+    if (user.nick.length < 1) {
+        document.getElementById("nick_button").addEventListener('click', changeNick);
+    } else {
+        document.getElementById("nick").disabled = true;
+        document.getElementById("nick_button").disabled = true;
+    }
     document.getElementById("logout_button").addEventListener('click', logOut);
     document.getElementById("back_button").addEventListener('click', goBack);
 }
@@ -122,16 +127,27 @@ function removeAvatar() {
 }
 
 function changeNick() {
+    var nick = document.getElementById("nick").value;
+
+    if (nick.length < 1) {
+        return;
+    }
+
+    if (!/^[a-zA-Z0-9\-]+$/.test(nick)) {
+        alert("昵称只能包含字母、数字和横线");
+
+        return;
+    }
+
     var user_json = localStorage.getItem('user');
     var user = "";
     eval("user = " + user_json);
 
-    var nick = document.getElementById("nick").value;
     if (nick === user.nick) {
         return;
     }
 
-    var prompt = nick.length > 0 ? ("要更改昵称为 " + nick + " 吗?") : ("要删除昵称吗?");
+    var prompt = "要更改昵称为 " + nick + " 吗? (只允许更改一次昵称)";
 
     if (!confirm(prompt)) {
         return;
@@ -152,6 +168,8 @@ function changeNick() {
 
                 window.location.reload();
             } else {
+                alert("修改失败. 昵称可能已被占用");
+
                 showToast("");
             }
         }
