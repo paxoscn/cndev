@@ -11,6 +11,8 @@ use redis::Commands;
 use serde::{Serialize, Deserialize};
 use crate::controllers::AppState;
 
+use crate::shencha;
+
 use jsonwebtoken::{encode, EncodingKey, Header, Algorithm};
 
 use std::env;
@@ -434,6 +436,18 @@ async fn change_nick(
         return Ok(HttpResponse::Ok().finish())
     }
 
+    match shencha_nick(user_new_nick.as_str()) {
+        Ok(true) => {}
+        Ok(false) => {
+            return Ok(HttpResponse::Forbidden().finish())
+        }
+        Err(e) => {
+            print!("Shencha error: {:?}", e);
+
+            return Ok(HttpResponse::InternalServerError().finish())
+        }
+    }
+
     let conn = &data.conn;
     
     match Mutation::change_nick(conn,
@@ -599,4 +613,19 @@ fn to_base9(mut num: i32) -> String {
     }
 
     result.chars().rev().collect::<String>()
+}
+
+fn shencha_nick(nick: &str) -> Result<bool, std::io::Error> {
+    // TODO Init on startup.
+    let aliyun_shencha_region = env::var("ALIYUN_SHENCHA_REGION").expect("ALIYUN_SHENCHA_REGION is not set in .env file");
+    let aliyun_shencha_ak = env::var("ALIYUN_SHENCHA_AK").expect("ALIYUN_SHENCHA_AK is not set in .env file");
+    let aliyun_shencha_sk = env::var("ALIYUN_SHENCHA_SK").expect("ALIYUN_SHENCHA_SK is not set");
+
+    let mut aliyun_client = alibaba_cloud_sdk_rust::services::dysmsapi::Client::NewClientWithAccessKey(
+        aliyun_shencha_region.as_str(),
+        aliyun_shencha_ak.as_str(),
+        aliyun_shencha_sk.as_str(),
+    )?;
+
+    shencha::shencha(aliyun_client, "nickname_detection", nick)
 }

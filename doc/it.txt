@@ -8,4 +8,4 @@ brew install ncftp
 ncftp -u root -p root -P 21 127.0.0.1
 ls
 
-APP_VERSION=1.0.0a ALIYUN_SMS_SK=xxx cargo run
+APP_VERSION=1.0.0a ALIYUN_SMS_SK=xxx ALIYUN_SHENCHA_SK=xxx cargo run

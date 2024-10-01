@@ -1,6 +1,7 @@
 mod controllers;
 mod post_controller;
 mod user_controller;
+pub mod shencha;
 
 use cndev_service::sea_orm::Database;
 use actix_files::Files as Fs;

@@ -10,6 +10,8 @@ use crate::controllers::AppState;
 
 use cndev_service::sea_orm::DatabaseConnection;
 
+use crate::shencha;
+
 use ftp::FtpStream;
 use std::io::Cursor;
 

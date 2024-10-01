@@ -225,6 +225,26 @@ impl Mutation {
             .ok_or(DbErr::Custom("Cannot find user.".to_owned()))
             .map(Into::into)?;
 
+        // One user can only change nickname once.
+        match user.nick.into_value() {
+            Some(existing_nick_value) => {
+                match existing_nick_value {
+                    Value::String(existing_nick) => {
+                        match existing_nick {
+                            Some(existing_nick) => {
+                                if existing_nick.len() > 0 {
+                                    return Err(DbErr::Custom("Nick already exists.".to_owned()));
+                                }
+                            }
+                            None => {}
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            None => {}
+        }
+
         user.nick = Set(Some(nick));
 
         user
