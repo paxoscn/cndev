@@ -62,7 +62,7 @@ pub fn CreateShenchaRequest() -> ShenchaRequest {
 }
 
 pub fn shencha(
-    mut aliyun_client: alibaba_cloud_sdk_rust::services::dysmsapi::Client,
+    aliyun_client: &mut alibaba_cloud_sdk_rust::services::dysmsapi::Client,
     service_type: &str,
     content: &str
 ) -> Result<bool, std::io::Error> {
@@ -79,7 +79,7 @@ pub fn shencha(
     let mut baseResponse = alibaba_cloud_sdk_rust::sdk::responses::BaseResponse::default();
 
     aliyun_client.DoAction(&mut request.rpcRequest, &mut baseResponse)?;
-    
+
     let res_str = String::from_utf8(baseResponse.httpContentBytes).unwrap();
     response = serde_json::from_str(res_str.as_str())?;
 

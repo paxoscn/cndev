@@ -95,6 +95,8 @@ function savePost() {
                 simplemde.clearAutosavedValue();
 
                 window.location.href = "/" + (user.nick.length > 0 ? user.nick : user.id);
+            } else if (xhr.status === 403) {
+                alert("保存失败，请检查内容后再尝试。");
             } else if (xhr.status === 401) {
                 localStorage.removeItem('user')
 

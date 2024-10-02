@@ -10,6 +10,8 @@ use crate::controllers::AppState;
 
 use cndev_service::sea_orm::DatabaseConnection;
 
+use std::env;
+
 use crate::shencha;
 
 use ftp::FtpStream;
@@ -158,6 +160,30 @@ async fn update(
 
     let id = id.into_inner();
     let post_saving_request = post_saving_request_json.into_inner();
+
+    match shencha_text(format!("{} {} {}", post_saving_request.title, post_saving_request.sharing_path, post_saving_request.tags).as_str()) {
+        Ok(true) => {}
+        Ok(false) => {
+            return Ok(HttpResponse::Forbidden().finish())
+        }
+        Err(e) => {
+            print!("Shencha error: {:?}", e);
+
+            return Ok(HttpResponse::InternalServerError().finish())
+        }
+    }
+
+    match shencha_text(post_saving_request.text.as_str()) {
+        Ok(true) => {}
+        Ok(false) => {
+            return Ok(HttpResponse::Forbidden().finish())
+        }
+        Err(e) => {
+            print!("Shencha error: {:?}", e);
+
+            return Ok(HttpResponse::InternalServerError().finish())
+        }
+    }
 
     let conn = &data.conn;
     
@@ -515,4 +541,47 @@ pub async fn publish_home_page(ftp: &mut FtpStream, data: &web::Data<AppState>, 
     print!("Published home page of user {}", author_id);
 
     false
+}
+
+fn shencha_text(text: &str) -> Result<bool, std::io::Error> {
+    // TODO Init on startup.
+    let aliyun_shencha_region = env::var("ALIYUN_SHENCHA_REGION").expect("ALIYUN_SHENCHA_REGION is not set in .env file");
+    let aliyun_shencha_ak = env::var("ALIYUN_SHENCHA_AK").expect("ALIYUN_SHENCHA_AK is not set in .env file");
+    let aliyun_shencha_sk = env::var("ALIYUN_SHENCHA_SK").expect("ALIYUN_SHENCHA_SK is not set");
+
+    let mut aliyun_client = alibaba_cloud_sdk_rust::services::dysmsapi::Client::NewClientWithAccessKey(
+        aliyun_shencha_region.as_str(),
+        aliyun_shencha_ak.as_str(),
+        aliyun_shencha_sk.as_str(),
+    )?;
+
+    let mut chunks = Vec::new();
+    let mut chars = text.chars();
+    let mut current_chunk = String::new();
+
+    while let Some(c) = chars.next() {
+        current_chunk.push(c);
+        if current_chunk.len() >= 500 {
+            chunks.push(current_chunk);
+            current_chunk = String::new();
+        }
+    }
+
+    if !current_chunk.is_empty() {
+        chunks.push(current_chunk);
+    }
+
+    for chunk in chunks {
+        match shencha::shencha(&mut aliyun_client, "comment_detection", &chunk) {
+            Ok(true) => {},
+            Ok(false) => return Ok(false),
+            Err(e) => {
+                println!("Error: {}", e);
+
+                return Ok(false)
+            },
+        }
+    }
+
+    Ok(true)
 }

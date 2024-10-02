@@ -627,5 +627,5 @@ fn shencha_nick(nick: &str) -> Result<bool, std::io::Error> {
         aliyun_shencha_sk.as_str(),
     )?;
 
-    shencha::shencha(aliyun_client, "nickname_detection", nick)
+    shencha::shencha(&mut aliyun_client, "nickname_detection", nick)
 }
