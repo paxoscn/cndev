@@ -467,7 +467,14 @@ async fn change_nick(
     
     // Bad vsftpd may hang here. Restart vsftpd to fix.
     let mut ftp = FtpStream::connect((host, 21)).unwrap();
-    ftp.login(username, password).unwrap();
+    match ftp.login(username, password) {
+        Ok(_) => {},
+        Err(e) => {
+            print!("FTP error: {:?}", e);
+
+            return Ok(HttpResponse::InternalServerError().finish())
+        }
+    }
 
     // Not allowed to be empty.
     // if nick_changing_request.nick.len() < 1 {
