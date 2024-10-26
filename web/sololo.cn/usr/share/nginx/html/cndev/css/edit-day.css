@@ -1,7 +1,7 @@
 body, html {
 	height: 100%;
 	margin: 0;
-	padding:0;
+	padding: 0;
 	background-color: whitesmoke;
 	color: black;
 }
@@ -15,4 +15,40 @@ body, html {
     padding: 10px 20px;
     border-radius: 5px;
     z-index: 9999;
+}
+
+button {
+    cursor: pointer;
+}
+
+#content {
+    padding: 10px;
+}
+
+#button_saving {
+    background-color: chartreuse;
+}
+
+#button_cancelling {
+    background-color: gainsboro;
+}
+
+.prompt {
+    font-weight: bold;
+}
+
+#title {
+    width: 500px;
+}
+
+#sharing_path {
+    width: 300px;
+}
+
+#tags {
+    width: 300px;
+}
+
+#button_path_copying {
+    border-width: 0px;
 }
