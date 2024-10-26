@@ -17,13 +17,13 @@
 				<div id="inputs">
 					<p>
 						<span class="input_line">
-							<span class="class_shown"><span class="package">CN</span>.<span class="instance">dev</span></span>.<span class="method">send</span>(<span class="param_name">phoneNumber:</span><span class="quote">"</span><input id="tel" type="text" onkeypress="return (this.value.length < 11 && event.charCode >= 48 && event.charCode <= 57) || event.charCode == 13" class="input" size="2" maxlength="2" /><span class="quote">"</span>)
+							<span class="class_shown"><span class="package">CN</span>.<span class="instance">dev</span></span>.<span class="method">send</span>(<span class="param_name">phoneNumber:</span><span class="quote">"</span><span id="tel" tabindex="1" contenteditable onkeypress="if (event.charCode == 13) { onEnter(this); return false; } return this.innerHTML.length < 11 && event.charCode >= 48 && event.charCode <= 57" class="input"></span><span class="quote">"</span>)
 							<span id="button_sending" class="run">&#9655;</span>
 						</span>
 					</p>
 					<p>
 						<span class="input_line">
-							<span class="class_hidden">CN.dev</span>.<span class="method">verify</span>(<span class="param_name">code:</span><span class="quote">"</span><input id="code" type="text" onkeypress="return (this.value.length < 6 && event.charCode >= 48 && event.charCode <= 57) || event.charCode == 13" class="input" size="2" maxlength="2" /><span class="quote">"</span>)
+							<span class="class_hidden">CN.dev</span>.<span class="method">verify</span>(<span class="param_name">code:</span><span class="quote">"</span><span id="code" tabindex="1" contenteditable onkeypress="if (event.charCode == 13) { onEnter(this); return false; } return this.innerHTML.length < 6 && event.charCode >= 48 && event.charCode <= 57" class="input" size="2" maxlength="2"></span><span class="quote">"</span>)
 							<span id="button_verifying" class="run">&#9655;</span>
 						</span>
 					</p>

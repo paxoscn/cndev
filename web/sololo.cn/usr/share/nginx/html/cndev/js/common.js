@@ -3,7 +3,7 @@ var period = currentHour >= 7 && currentHour < 19 ? "day" : "night";
 loadStylesheet("https://www.sololo.cn/cndev/css/" + document.getElementsByTagName("HTML")[0].getAttribute("template") + "-" + period + ".css");
 
 function sendCode() {
-    var tel = document.getElementById("tel").value;
+    var tel = document.getElementById("tel").innerHTML;
     var time = new Date().toString().replace(/.* ([\d:]+) .*/, "$1");
     if (tel.length < 1) {
         showLog([
@@ -50,8 +50,8 @@ function sendCode() {
 }
 
 function verifyCode() {
-    var tel = document.getElementById("tel").value;
-    var code = document.getElementById("code").value;
+    var tel = document.getElementById("tel").innerHTML;
+    var code = document.getElementById("code").innerHTML;
     var time = new Date().toString().replace(/.* ([\d:]+) .*/, "$1");
     if (tel.length < 1) {
         showLog([
@@ -167,6 +167,15 @@ function tryApplyAvatar(user_id, callback) {
     xhr.send(null);
 }
 
+function onEnter(input) {
+    input.blur();
+    if (input.getAttribute("id") == "tel") {
+        sendCode();
+    } else {
+        verifyCode();
+    }
+}
+
 window.addEventListener('load', function () {
     var user = null;
     var user_json = localStorage.getItem('user');
@@ -180,23 +189,6 @@ window.addEventListener('load', function () {
             div.style.display = "block";
         });
     }
-
-    document.querySelectorAll(".input").forEach((input) => {
-        input.addEventListener('keyup', function (e) {
-            var input = e.target;
-            if (e.keyCode === 13) {
-                input.blur();
-                if (input.getAttribute("id") == "tel") {
-                    sendCode();
-                } else {
-                    verifyCode();
-                }
-            } else {
-                input.setAttribute("size", input.value.length + 1);
-                input.setAttribute("maxlength", input.value.length + 1);
-            }
-        });
-    });
 
     document.getElementById("button_sending").addEventListener('click', sendCode);
     document.getElementById("button_verifying").addEventListener('click', verifyCode);
