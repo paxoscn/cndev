@@ -13,17 +13,22 @@
 		<div id="content">
 			<p>
 				<button id="button_saving">保存</button>
+				<button id="button_cancelling">取消</button>
 				<input id="id" type="hidden" />
 			</p>
 			<p>
-				<input id="title" placeholder="标题" />
+				<span class="prompt">标题:</span>
+				<input id="title" placeholder="标题" maxlength="100" />
 			</p>
 			<p id="p_sharing_path">
+				<span class="prompt">友好路径:</span>
 				<span id="sharing_url_prefix"></span>
-				<input id="sharing_path" placeholder="用于分享的友好路径" />
+				<input id="sharing_path" placeholder="用于分享的友好路径" maxlength="100" />
+				<button id="button_url_copying">📋</button>
 				<button id="button_path_generating">根据标题生成</button>
 			</p>
 			<p>
+				<span class="prompt">标签:</span>
 				<input id="tags" />
 			</p>
 			<p>

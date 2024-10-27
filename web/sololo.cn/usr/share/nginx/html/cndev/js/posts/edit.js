@@ -18,6 +18,9 @@ function onInit(user) {
 
 function onPost(user, post) {
     document.getElementById("button_saving").addEventListener('click', savePost);
+    document.getElementById("button_cancelling").addEventListener('click', goBack);
+    document.getElementById("button_url_copying").addEventListener('click', copyUrl);
+    document.getElementById("button_path_generating").addEventListener('click', generatePath);
     document.getElementById("id").value = post.id;
     document.getElementById("title").value = post.title;
     document.getElementById("sharing_url_prefix").innerHTML = "https://cn.dev/" + (user.nick.length > 0 ? user.nick : user.id) + "/";
@@ -113,6 +116,60 @@ function savePost() {
     xhr.setRequestHeader("Authorization", "Bearer " + user.token);
 
     xhr.send(JSON.stringify(post));
+}
+
+function goBack() {
+    window.history.back();
+}
+
+function copyUrl() {
+    var sharingPathInput = document.getElementById("sharing_path");
+    sharingPathInput.select();
+    sharingPathInput.setSelectionRange(0, 99999); // For mobile devices
+    var sharingUrl = document.getElementById("sharing_url_prefix").innerHTML + sharingPathInput.value;
+    navigator.clipboard.writeText(sharingUrl).then(() => {
+        alert("已复制: " + sharingUrl);
+    }).catch(err => {
+        console.error('复制失败: ', err);
+    });
+}
+
+function generatePath() {
+    var title = document.getElementById("title").value;
+
+    if (title.length < 1) return;
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                var res = "";
+                eval("res = " + xhr.responseText);
+
+                if (typeof res.error != "undefined") {
+                    console.log(res);
+
+                    return;
+                }
+
+                var translatedText = res[0].translations[0].text;
+                var sharingPath = translatedText.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^\-/, "").replace(/\-$/, "");
+                document.getElementById("sharing_path").value = sharingPath;
+            } else {
+                console.log(xhr.status);
+                showToast("");
+            }
+        }
+    };
+
+    xhr.open("POST", "/_translate", true);
+
+    xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+    var payload = [ { "Text": title } ];
+
+    xhr.send(JSON.stringify(payload));
 }
 
 function loadStylesheet(url) {
