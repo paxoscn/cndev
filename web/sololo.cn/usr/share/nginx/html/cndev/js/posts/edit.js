@@ -75,6 +75,8 @@ vvv
             return rendered;
         },
     });
+
+    simplemde.codemirror.on("paste", onPaste);
 }
 
 function savePost() {
@@ -170,6 +172,63 @@ function generatePath() {
     var payload = [ { "Text": title } ];
 
     xhr.send(JSON.stringify(payload));
+}
+
+function onPaste(ideEvent, docEvent) {
+    // We need to check if event.clipboardData is supported (Chrome & IE)
+    if (docEvent.clipboardData && docEvent.clipboardData.items) {
+        // Get the items from the clipboard
+        var items = docEvent.clipboardData.items;
+  
+        // Loop through all items, looking for any kind of image
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                // We need to represent the image as a file
+                var blob = items[i].getAsFile();
+
+                uploadImage(ideEvent.doc, blob);
+  
+                // Prevent the image (or URL) from being pasted into the contenteditable element
+                docEvent.preventDefault();
+            }
+        }
+    }
+}
+
+function uploadImage(cmDoc, blob) {
+    var user_json = localStorage.getItem('user');
+    var user = "";
+    eval("user = " + user_json);
+    
+    var id = document.getElementById("id").value;
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                var res = "";
+                eval("res = " + xhr.responseText);
+
+                cmDoc.replaceRange("![" + blob.name + "](https://www.sololo.cn/cndev/_post_images/" + res.uploaded_file_name + ")", cmDoc.getCursor("start"), cmDoc.getCursor("end"));
+            } else if (xhr.status === 401) {
+                localStorage.removeItem('user')
+
+                window.location.reload();
+            } else {
+                showToast("");
+            }
+        }
+    };
+
+    xhr.open("PUT", "https://www.sololo.cn/cndev/api/posts/" + id + "/images", true);
+
+    xhr.setRequestHeader("Authorization", "Bearer " + user.token);
+
+    const formData = new FormData();
+    formData.append("image", blob);
+
+    xhr.send(formData);
 }
 
 function loadStylesheet(url) {

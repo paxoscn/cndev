@@ -23,6 +23,13 @@ use actix_web::{
     error, get, post, put, delete, web, Error, HttpRequest, HttpResponse, Result, http::header::HeaderValue,
 };
 
+use actix_multipart::form::{tempfile::TempFile, MultipartForm};
+
+use chrono::{DateTime, Utc};
+
+use std::{io::Read, ops::Index};
+use std::io::Write;
+
 const DEFAULT_POSTS_PER_PAGE: u64 = 100;
 
 #[derive(Debug, Deserialize)]
@@ -40,6 +47,16 @@ struct PostSavingRequest {
     text: String,
 }
 
+#[derive(Debug, MultipartForm)]
+struct ImageUploadingForm {
+    #[multipart(limit = "500KB")]
+    image: TempFile,
+}
+
+#[derive(Serialize)]
+struct ImageUploadingResponse {
+    uploaded_file_name: String,
+}
 
 #[derive(Serialize)]
 struct PostListingResponse<'a> {
@@ -227,6 +244,42 @@ async fn update(
     }
 
     Ok(HttpResponse::Ok().json(saved_post.try_into_model().unwrap()))
+}
+
+#[put("/posts/{id}/images")]
+pub async fn upload_image(
+    req: HttpRequest,
+    data: web::Data<AppState>,
+    id: web::Path<i32>,
+    MultipartForm(form): MultipartForm<ImageUploadingForm>,
+) -> Result<HttpResponse, Error> {
+    if form.image.size < 1 || form.image.size > 1024 * 500 {
+        return Ok(HttpResponse::BadRequest().finish());
+    }
+
+    let user_id = match req.headers().get("id") {
+        Some(id) => id.to_str().unwrap().parse::<i32>().unwrap(),
+        None => {
+            return Ok(HttpResponse::NotFound().finish())
+        }
+    };
+
+    let folder = format!("./web/sololo.cn/usr/share/nginx/html/cndev/_post_images/{}/{}", user_id, id);
+
+    // Just treat all images as png.
+    let uploaded_file_name = format!("{}.png", Utc::now().timestamp());
+
+    let _ = std::fs::create_dir_all(&folder);
+    println!("{}/{}", folder, uploaded_file_name);
+    let mut file = std::fs::File::create(format!("{}/{}", folder, uploaded_file_name)).unwrap();
+    let mut content = vec![];
+    let mut image_file = form.image.file;
+    image_file.read_to_end(&mut content).unwrap();
+    file.write_all(&content).unwrap();
+
+    Ok(HttpResponse::Ok().json(ImageUploadingResponse {
+        uploaded_file_name: format!("{}/{}/{}", user_id, id, uploaded_file_name),
+    }))
 }
 
 #[put("/posts/{id}/publishing")]
