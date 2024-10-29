@@ -17,8 +17,6 @@ use jsonwebtoken::{encode, EncodingKey, Header, Algorithm};
 
 use std::env;
 
-use ftp::FtpStream;
-
 use std::io::Write;
 
 use actix_web::{
@@ -32,6 +30,8 @@ use std::net::IpAddr;
 use chrono::{format, DateTime, Utc};
 
 use crate::post_controller::publish_home_page;
+
+use entity::post::STATUS_PUBLISHED;
 
 const DEFAULT_POSTS_PER_PAGE: u64 = 100;
 
@@ -181,7 +181,7 @@ async fn grant_token(
 
     match check_sms_code(&data.redis, &token_granting_request.tel, &token_granting_request.sms_code) {
         Some(res) => {
-            print!("Failed to check SMS code");
+            println!("Failed to check SMS code");
 
             return res;
         }
@@ -204,7 +204,7 @@ async fn grant_token(
                             user_created = true;
                         }
                         Err(e) => {
-                            print!("Database error: {:?}", e);
+                            println!("Database error: {:?}", e);
                         }
                     }
                     match Query::find_user_by_tel(conn, &token_granting_request.tel).await {
@@ -212,7 +212,7 @@ async fn grant_token(
                             found_user
                         }
                         Err(e) => {
-                            print!("Database error: {:?}", e);
+                            println!("Database error: {:?}", e);
                             
                             Option::None
                         }
@@ -221,7 +221,7 @@ async fn grant_token(
             }
         }
         Err(e) => {
-            print!("Database error: {:?}", e);
+            println!("Database error: {:?}", e);
 
             Option::None
         }
@@ -431,7 +431,7 @@ async fn change_nick(
             return Ok(HttpResponse::Forbidden().finish())
         }
         Err(e) => {
-            print!("Shencha error: {:?}", e);
+            println!("Shencha error: {:?}", e);
 
             return Ok(HttpResponse::InternalServerError().finish())
         }
@@ -444,43 +444,28 @@ async fn change_nick(
             user_new_nick.to_owned()).await {
         Ok(_) => {},
         Err(e) => {
-            print!("Database error: {:?}", e);
+            println!("Database error: {:?}", e);
 
             return Ok(HttpResponse::InternalServerError().finish())
         }
     };
 
-    let host = "127.0.0.1";
-    let username = "root";
-    let password = "root";
-    
-    // Bad vsftpd may hang here. Restart vsftpd to fix.
-    let mut ftp = FtpStream::connect((host, 21)).unwrap();
-    match ftp.login(username, password) {
-        Ok(_) => {},
-        Err(e) => {
-            print!("FTP error: {:?}", e);
+    if user_old_nick.len() > 0 {
+        let _ = std::fs::remove_file(format!("./web/cn.dev/usr/share/nginx/html/index-and-homes/root/{}", user_old_nick));
+        let _ = std::fs::remove_file(format!("./web/cn.dev/usr/share/nginx/html/index-and-homes/root/{}.html", user_old_nick));
 
-            return Ok(HttpResponse::InternalServerError().finish())
-        }
+        let page = 1;
+        let posts_per_page = DEFAULT_POSTS_PER_PAGE;
+
+        let (posts, total_count, num_pages) = Query::find_posts_of_user_and_status_in_page(conn, user_id, STATUS_PUBLISHED, page, posts_per_page)
+            .await
+            .expect("Cannot find posts in page");
+
+        publish_home_page(&data, user_id, user_new_nick.as_str(), user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
+
+        let folder_by_nick_path = format!("./web/cn.dev/usr/share/nginx/html/index-and-homes/root/{}", user_new_nick);
+        let _ = std::os::unix::fs::symlink(format!("./{}", user_id), folder_by_nick_path);
     }
-
-    // Not allowed to be empty.
-    // if nick_changing_request.nick.len() < 1 {
-    //     let _ = ftp.rename(format!("{}.html", user_old_nick).as_str(), format!("{}_.html", user_id).as_str());
-    //     let _ = ftp.rename(format!("{}", user_old_nick).as_str(), format!("{}_", user_id).as_str());
-    // } else {
-        if user_old_nick.len() < 1 {
-            let _ = ftp.rename(format!("{}_.html", user_id).as_str(), format!("{}.html", user_new_nick).as_str());
-            let _ = ftp.rename(format!("{}_", user_id).as_str(), format!("{}", user_new_nick).as_str());
-        } else {
-            let _ = ftp.rename(format!("{}.html", user_old_nick).as_str(), format!("{}.html", user_new_nick).as_str());
-            let _ = ftp.rename(format!("{}", user_old_nick).as_str(), format!("{}", user_new_nick).as_str());
-        }
-    // }
-
-    // Double-quitting leads panicking.
-    ftp.quit().unwrap();
 
     let my_claims = Claims {
         id: user_id,

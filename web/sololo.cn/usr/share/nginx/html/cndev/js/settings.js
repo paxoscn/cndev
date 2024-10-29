@@ -186,5 +186,9 @@ function logOut() {
 }
 
 function goBack() {
-    window.history.back();
+    var user_json = localStorage.getItem('user');
+    var user = "";
+    eval("user = " + user_json);
+
+    window.location.href = "/" + user.nick;
 }

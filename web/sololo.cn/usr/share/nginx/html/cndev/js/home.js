@@ -118,13 +118,9 @@ function onDraftPosts(user, postsRes) {
 
         if (user != null && user.id === parseInt(el.getAttribute("_post_author_id"))) {
             el.querySelector(".post_updating_button").disabled = false;
-            switch (parseInt(el.getAttribute("_post_status"))) {
-                case STATUS_DRAFT:
-                    el.querySelector(".post_publishing_button").disabled = false;
-                    break;
-                case STATUS_PUBLISHED:
-                    el.querySelector(".post_unpublishing_button").disabled = false;
-                    break;
+            el.querySelector(".post_publishing_button").disabled = false;
+            if (parseInt(el.getAttribute("_post_status")) === STATUS_PUBLISHED) {
+                el.querySelector(".post_unpublishing_button").disabled = false;
             }
             el.querySelector(".post_deleting_button").disabled = false;
             el.querySelector(".post_updating_button").addEventListener('click', function (e) {

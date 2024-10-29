@@ -14,7 +14,6 @@ use std::env;
 
 use crate::shencha;
 
-use ftp::FtpStream;
 use std::io::Cursor;
 
 use cndev_service::sea_orm::TryIntoModel;
@@ -126,7 +125,7 @@ async fn create(
             post_saving_request.text).await {
         Ok(saved_post) => saved_post,
         Err(e) => {
-            print!("Database error: {:?}", e);
+            println!("Database error: {:?}", e);
 
             return Ok(HttpResponse::InternalServerError().finish())
         }
@@ -184,7 +183,7 @@ async fn update(
             return Ok(HttpResponse::Forbidden().finish())
         }
         Err(e) => {
-            print!("Shencha error: {:?}", e);
+            println!("Shencha error: {:?}", e);
 
             return Ok(HttpResponse::InternalServerError().finish())
         }
@@ -196,7 +195,7 @@ async fn update(
             return Ok(HttpResponse::Forbidden().finish())
         }
         Err(e) => {
-            print!("Shencha error: {:?}", e);
+            println!("Shencha error: {:?}", e);
 
             return Ok(HttpResponse::InternalServerError().finish())
         }
@@ -213,7 +212,7 @@ async fn update(
             post_saving_request.text).await {
         Ok(saved_post) => saved_post,
         Err(e) => {
-            print!("Database error: {:?}", e);
+            println!("Database error: {:?}", e);
 
             return Ok(HttpResponse::InternalServerError().finish())
         }
@@ -227,20 +226,9 @@ async fn update(
             .await
             .expect("Cannot find posts in page");
     
-        let host = "127.0.0.1";
-        let username = "root";
-        let password = "root";
-        
-        // Bad vsftpd may hang here. Restart vsftpd to fix.
-        let mut ftp = FtpStream::connect((host, 21)).unwrap();
-        ftp.login(username, password).unwrap();
+        publish_post_page(&data, user_id, user_nick, user_registering_time, &mut saved_post).await;
     
-        publish_post_page(&mut ftp, &data, user_id, user_nick, user_registering_time, &mut saved_post).await;
-    
-        publish_home_page(&mut ftp, &data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
-    
-        // Double-quitting leads panicking.
-        ftp.quit().unwrap();
+        publish_home_page(&data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
     }
 
     Ok(HttpResponse::Ok().json(saved_post.try_into_model().unwrap()))
@@ -306,7 +294,7 @@ async fn publish(
             id).await {
         Ok(saved_post) => saved_post,
         Err(e) => {
-            print!("Database error: {:?}", e);
+            println!("Database error: {:?}", e);
 
             return Ok(HttpResponse::InternalServerError().finish())
         }
@@ -319,20 +307,9 @@ async fn publish(
         .await
         .expect("Cannot find posts in page");
 
-    let host = "127.0.0.1";
-    let username = "root";
-    let password = "root";
-    
-    // Bad vsftpd may hang here. Restart vsftpd to fix.
-    let mut ftp = FtpStream::connect((host, 21)).unwrap();
-    ftp.login(username, password).unwrap();
+    publish_post_page(&data, user_id, user_nick, user_registering_time, &mut saved_post).await;
 
-    publish_post_page(&mut ftp, &data, user_id, user_nick, user_registering_time, &mut saved_post).await;
-
-    publish_home_page(&mut ftp, &data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
-
-    // Double-quitting leads panicking.
-    ftp.quit().unwrap();
+    publish_home_page(&data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
 
     Ok(HttpResponse::Ok().finish())
 }
@@ -361,7 +338,7 @@ async fn unpublish(
             id).await {
         Ok(saved_post) => saved_post,
         Err(e) => {
-            print!("Database error: {:?}", e);
+            println!("Database error: {:?}", e);
 
             return Ok(HttpResponse::InternalServerError().finish())
         }
@@ -374,20 +351,9 @@ async fn unpublish(
         .await
         .expect("Cannot find posts in page");
 
-    let host = "127.0.0.1";
-    let username = "root";
-    let password = "root";
-    
-    // Bad vsftpd may hang here. Restart vsftpd to fix.
-    let mut ftp = FtpStream::connect((host, 21)).unwrap();
-    ftp.login(username, password).unwrap();
+    unpublish_post_page(&data, user_id, user_nick, user_registering_time, &mut saved_post).await;
 
-    unpublish_post_page(&mut ftp, &data, user_id, user_nick, user_registering_time, &mut saved_post).await;
-
-    publish_home_page(&mut ftp, &data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
-
-    // Double-quitting leads panicking.
-    ftp.quit().unwrap();
+    publish_home_page(&data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
 
     Ok(HttpResponse::Ok().finish())
 }
@@ -454,7 +420,7 @@ async fn delete(
             id).await {
         Ok(saved_post) => saved_post,
         Err(e) => {
-            print!("Database error: {:?}", e);
+            println!("Database error: {:?}", e);
 
             return Ok(HttpResponse::InternalServerError().finish())
         }
@@ -467,28 +433,17 @@ async fn delete(
         .await
         .expect("Cannot find posts in page");
 
-    let host = "127.0.0.1";
-    let username = "root";
-    let password = "root";
-    
-    // Bad vsftpd may hang here. Restart vsftpd to fix.
-    let mut ftp = FtpStream::connect((host, 21)).unwrap();
-    ftp.login(username, password).unwrap();
+    unpublish_post_page(&data, user_id, user_nick, user_registering_time, &mut saved_post).await;
+    // publish_post_page(&data, user_id, user_nick, user_registering_time, &mut saved_post).await;
 
-    unpublish_post_page(&mut ftp, &data, user_id, user_nick, user_registering_time, &mut saved_post).await;
-    // publish_post_page(&mut ftp, &data, user_id, user_nick, user_registering_time, &mut saved_post).await;
-
-    publish_home_page(&mut ftp, &data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
-
-    // Double-quitting leads panicking.
-    ftp.quit().unwrap();
+    publish_home_page(&data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
 
     Ok(HttpResponse::Ok().finish())
 }
 
-async fn publish_post_page(ftp: &mut FtpStream, data: &web::Data<AppState>, author_id: i32, author_nick: &str, author_registering_time: i64,
+async fn publish_post_page(data: &web::Data<AppState>, author_id: i32, author_nick: &str, author_registering_time: i64,
         post: &mut post::Model) -> bool {
-    print!("Publishing post page {} for user {}", post.id, author_id);
+    println!("Publishing post page {} for user {}", post.id, author_id);
 
     post.updated_at_formatted = post.updated_at.format("%Y-%m-%d %H:%M:%S").to_string();
 
@@ -505,62 +460,42 @@ async fn publish_post_page(ftp: &mut FtpStream, data: &web::Data<AppState>, auth
         .unwrap()
         .into_bytes();
 
-    let _ = ftp.mkdir(format!("/{}", author_id).as_str());
-    let _ = ftp.cwd(format!("/{}", author_id).as_str());
-    let _ = ftp.put(format!("{}.html", post.id).as_str(), &mut Cursor::new(&body));
+    let folder_by_id_path = format!("./web/cn.dev/usr/share/nginx/html/index-and-homes/root/{}", author_id);
+    let _ = std::fs::create_dir_all(&folder_by_id_path);
+
+    let folder_by_nick_path = format!("./web/cn.dev/usr/share/nginx/html/index-and-homes/root/{}", author_nick);
+    let _ = std::os::unix::fs::symlink(format!("./{}", author_id), folder_by_nick_path);
+
+    let file_by_id_path = format!("./web/cn.dev/usr/share/nginx/html/index-and-homes/root/{}/{}.html", author_id, post.id);
+    let mut file = std::fs::File::create(&file_by_id_path).unwrap();
+    file.write_all(&body).unwrap();
+
     if post.old_sharing_path.len() > 0 && post.old_sharing_path != post.sharing_path {
-        let _ = ftp.rm(format!("{}.html", post.old_sharing_path).as_str());
-    }
-    if post.sharing_path.len() > 0 {
-        let _ = ftp.put(format!("{}.html", post.sharing_path).as_str(), &mut Cursor::new(&body));
-    }
-    if author_nick.len() > 0 {
-        let _ = ftp.mkdir(format!("/{}", author_nick).as_str());
-        let _ = ftp.cwd(format!("/{}", author_nick).as_str());
-    } else {
-        let _ = ftp.mkdir(format!("/{}_", author_id).as_str());
-        let _ = ftp.cwd(format!("/{}_", author_id).as_str());
-    }
-    let _ = ftp.put(format!("{}.html", post.id).as_str(), &mut Cursor::new(&body));
-    if post.old_sharing_path.len() > 0 && post.old_sharing_path != post.sharing_path {
-        let _ = ftp.rm(format!("{}.html", post.old_sharing_path).as_str());
-    }
-    if post.sharing_path.len() > 0 {
-        let _ = ftp.put(format!("{}.html", post.sharing_path).as_str(), &mut Cursor::new(&body));
+        let _ = std::fs::remove_file(format!("./web/cn.dev/usr/share/nginx/html/index-and-homes/root/{}/{}.html", author_id, post.old_sharing_path));
     }
 
-    print!("Published post page {} for user {}", post.id, author_id);
+    let file_by_sharing_path = format!("./web/cn.dev/usr/share/nginx/html/index-and-homes/root/{}/{}.html", author_id, post.sharing_path);
+    let _ = std::os::unix::fs::symlink(format!("./{}.html", post.id), file_by_sharing_path);
+
+    println!("Published post page {} for user {}", post.id, author_id);
 
     false
 }
 
-async fn unpublish_post_page(ftp: &mut FtpStream, data: &web::Data<AppState>, author_id: i32, author_nick: &str, author_registering_time: i64,
+async fn unpublish_post_page(data: &web::Data<AppState>, author_id: i32, author_nick: &str, author_registering_time: i64,
         post: &mut post::Model) -> bool {
-    print!("Unpublishing post page {} for user {}", post.id, author_id);
+    println!("Unpublishing post page {} for user {}", post.id, author_id);
 
-    let _ = ftp.cwd(format!("/{}", author_id).as_str());
-    let _ = ftp.rm(format!("{}.html", post.id).as_str());
-    if post.sharing_path.len() > 0 {
-        let _ = ftp.rm(format!("{}.html", post.sharing_path).as_str());
-    }
-    if author_nick.len() > 0 {
-        let _ = ftp.cwd(format!("/{}", author_nick).as_str());
-    } else {
-        let _ = ftp.cwd(format!("/{}_", author_id).as_str());
-    }
-    let _ = ftp.rm(format!("{}.html", post.id).as_str());
-    if post.sharing_path.len() > 0 {
-        let _ = ftp.rm(format!("{}.html", post.sharing_path).as_str());
-    }
+    let _ = std::fs::remove_file(format!("./web/cn.dev/usr/share/nginx/html/index-and-homes/root/{}/{}.html", author_id, post.id));
 
-    print!("Unpublished post page {} for user {}", post.id, author_id);
+    println!("Unpublished post page {} for user {}", post.id, author_id);
 
     false
 }
 
-pub async fn publish_home_page(ftp: &mut FtpStream, data: &web::Data<AppState>, author_id: i32, author_nick: &str, author_registering_time: i64,
+pub async fn publish_home_page(data: &web::Data<AppState>, author_id: i32, author_nick: &str, author_registering_time: i64,
         mut posts: Vec<post::Model>, total_count: u64, num_pages: u64, page: u64, posts_per_page: u64) -> bool {
-    print!("Publishing home page for user {}", author_id);
+    println!("Publishing home page for user {}", author_id);
 
     for post in posts.iter_mut() {
         post.updated_at_formatted = post.updated_at.format("%Y-%m-%d %H:%M:%S").to_string()
@@ -583,15 +518,16 @@ pub async fn publish_home_page(ftp: &mut FtpStream, data: &web::Data<AppState>, 
         .unwrap()
         .into_bytes();
 
-    let _ = ftp.cwd("/");
-    let _ = ftp.put(format!("{}.html", author_id).as_str(), &mut Cursor::new(&body));
+    let file_by_id_path = format!("./web/cn.dev/usr/share/nginx/html/index-and-homes/root/{}.html", author_id);
+    let mut file = std::fs::File::create(&file_by_id_path).unwrap();
+    file.write_all(&body).unwrap();
+
     if author_nick.len() > 0 {
-        let _ = ftp.put(format!("{}.html", author_nick).as_str(), &mut Cursor::new(&body));
-    } else {
-        let _ = ftp.put(format!("{}_.html", author_id).as_str(), &mut Cursor::new(&body));
+        let file_by_nick_path = format!("./web/cn.dev/usr/share/nginx/html/index-and-homes/root/{}.html", author_nick);
+        let _ = std::os::unix::fs::symlink(format!("./{}.html", author_id), file_by_nick_path);
     }
 
-    print!("Published home page of user {}", author_id);
+    println!("Published home page of user {}", author_id);
 
     false
 }

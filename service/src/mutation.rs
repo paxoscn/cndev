@@ -81,7 +81,6 @@ impl Mutation {
         let mut post: post::ActiveModel = Post::find()
             .filter(post::Column::Id.eq(id))
             .filter(post::Column::UserId.eq(user_id))
-            .filter(post::Column::Status.eq(STATUS_DRAFT))
             .one(db)
             .await?
             .ok_or(DbErr::Custom("Cannot find post.".to_owned()))
@@ -169,6 +168,8 @@ impl Mutation {
             tel: Set(tel.to_owned()),
             mail: Set("".to_owned()),
             status: Set(1),
+            created_at: Set(Utc::now().naive_local().to_owned()),
+            updated_at: Set(Utc::now().naive_local().to_owned()),
             ..Default::default()
         }
         .save(db)
@@ -194,7 +195,7 @@ impl Mutation {
             mail: Set(form_data.mail.to_owned()),
             status: Set(form_data.status.to_owned()),
             created_at: Set(form_data.created_at.to_owned()),
-            updated_at: Set(form_data.updated_at.to_owned()),
+            updated_at: Set(Utc::now().naive_local().to_owned()),
         }
         .update(db)
         .await
@@ -224,26 +225,6 @@ impl Mutation {
             .await?
             .ok_or(DbErr::Custom("Cannot find user.".to_owned()))
             .map(Into::into)?;
-
-        // One user can only change nickname once.
-        match user.nick.into_value() {
-            Some(existing_nick_value) => {
-                match existing_nick_value {
-                    Value::String(existing_nick) => {
-                        match existing_nick {
-                            Some(existing_nick) => {
-                                if existing_nick.len() > 0 {
-                                    return Err(DbErr::Custom("Nick already exists.".to_owned()));
-                                }
-                            }
-                            None => {}
-                        }
-                    }
-                    _ => {}
-                }
-            }
-            None => {}
-        }
 
         user.nick = Set(Some(nick));
 
