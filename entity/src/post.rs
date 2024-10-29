@@ -24,6 +24,8 @@ pub struct Model {
     pub updated_at_formatted: String,
     #[sea_orm(ignore)]
     pub old_sharing_path: String,
+    #[sea_orm(ignore)]
+    pub id_or_sharing_path: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -498,7 +498,13 @@ pub async fn publish_home_page(data: &web::Data<AppState>, author_id: i32, autho
     println!("Publishing home page for user {}", author_id);
 
     for post in posts.iter_mut() {
-        post.updated_at_formatted = post.updated_at.format("%Y-%m-%d %H:%M:%S").to_string()
+        post.updated_at_formatted = post.updated_at.format("%Y-%m-%d %H:%M:%S").to_string();
+
+        if post.sharing_path.len() > 0 {
+            post.id_or_sharing_path = format!("{}", post.sharing_path);
+        } else {
+            post.id_or_sharing_path = format!("{}", post.id);
+        }
     }
 
     let template = &data.templates;

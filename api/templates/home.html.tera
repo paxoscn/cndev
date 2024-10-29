@@ -61,7 +61,7 @@ var author_registering_time = {{ author_registering_time }};
     <div id="posts">
       {% for post in posts %}
       <div class="post" _post_id="{{ post.id }}" _post_author_id="{{ author_id }}" _post_author_nick="{{ author_nick }}" _post_sharing_path="{{ post.sharing_path }}" _post_status="{{ post.status }}">
-        <div class="post_title"><span>{{ post.title }}</span></div>
+        <div class="post_title"><span><a href="/{{ author_nick }}/{{ post.id_or_sharing_path }}">{{ post.title }}</a></span></div>
         <div class="post_panel">
           <span class="post_updating"><button class="post_updating_button" disabled="true">编辑</button></span>
           <span class="post_publishing"><button class="post_publishing_button" disabled="true">发表</button></span>

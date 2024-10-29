@@ -108,14 +108,14 @@ function onDraftPosts(user, postsRes) {
     });
 
     document.querySelectorAll(".post").forEach((el) => {
-        el.querySelector(".post_title").addEventListener('click', function (e) {
-            var el = e.target;
-            while (el.className !== "post") el = el.parentNode;
-            if (parseInt(el.getAttribute("_post_status")) === STATUS_DRAFT) return;
-            window.location.href =
-                    "/" + (el.getAttribute("_post_author_nick").length < 1 ? el.getAttribute("_post_author_id") : el.getAttribute("_post_author_nick")) +
-                    "/" + (el.getAttribute("_post_sharing_path").length < 1 ? el.getAttribute("_post_id") : el.getAttribute("_post_sharing_path"));
-        });
+        // el.querySelector(".post_title").addEventListener('click', function (e) {
+        //     var el = e.target;
+        //     while (el.className !== "post") el = el.parentNode;
+        //     if (parseInt(el.getAttribute("_post_status")) === STATUS_DRAFT) return;
+        //     window.location.href =
+        //             "/" + (el.getAttribute("_post_author_nick").length < 1 ? el.getAttribute("_post_author_id") : el.getAttribute("_post_author_nick")) +
+        //             "/" + (el.getAttribute("_post_sharing_path").length < 1 ? el.getAttribute("_post_id") : el.getAttribute("_post_sharing_path"));
+        // });
 
         if (user != null && user.id === parseInt(el.getAttribute("_post_author_id"))) {
             el.querySelector(".post_updating_button").disabled = false;

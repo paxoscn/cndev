@@ -206,11 +206,17 @@ legend {
     font-family: monospace;
     display: table-row;
 }
+.post span a:visited {
+	color: darkorange;
+}
 .post:hover {
 	background-color: darkorange;
 }
 .post:hover span {
     text-decoration-line: underline;
+	color: white;
+}
+.post:hover span a {
 	color: white;
 }
 .post:hover .post_time {
