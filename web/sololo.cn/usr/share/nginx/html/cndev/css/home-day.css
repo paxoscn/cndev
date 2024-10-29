@@ -266,3 +266,15 @@ legend {
     color: white;
 	background-color: darkorange;
 }
+#settings_button {
+    margin: 10px;
+    border: 2px solid white;
+	color: white;
+	background-color: darkorange;
+	cursor: pointer;
+}
+#settings_button:hover {
+    border: 2px solid darkorange;
+	color: darkorange;
+	background-color: white;
+}

@@ -267,3 +267,15 @@ legend {
     color: black;
 	background-color: lawngreen;
 }
+#settings_button {
+    margin: 10px;
+    border: 2px solid black;
+	color: black;
+	background-color: lawngreen;
+	cursor: pointer;
+}
+#settings_button:hover {
+    border: 2px solid lawngreen;
+	color: lawngreen;
+	background-color: black;
+}
