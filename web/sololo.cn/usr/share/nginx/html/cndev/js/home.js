@@ -6,6 +6,41 @@ const STATUS_DELETED = 3;
 function onInit(user) {
     document.getElementById("content_main").style.display = "block";
 
+    if (author_id.length < 1) {
+        fetchAuthorByNick(user);
+    } else {
+        onAuthor(user);
+    }
+}
+
+function fetchAuthorByNick(user) {
+    const xhr = new XMLHttpRequest();
+        
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                var userRes = "";
+                eval("userRes = " + xhr.responseText);
+
+                author_id = userRes.id;
+                author_registering_time = new Date(userRes.created_at).getTime() / 1000;
+
+                onAuthor(user);
+            } else {
+                console.log(xhr.status);
+                showToast("");
+            }
+        }
+    };
+
+    xhr.open("GET", "https://www.sololo.cn/cndev/api/users/" + author_nick, true);
+
+    xhr.setRequestHeader("Authorization", "Bearer " + user.token);
+
+    xhr.send(null);
+}
+
+function onAuthor(user) {
     tryApplyAvatar(author_id);
 
     var urlSuffix = window.location.href.replace(/.*\//, "");
@@ -13,6 +48,7 @@ function onInit(user) {
         var nick = urlSuffix;
         document.getElementById("nick").innerHTML = nick;
     }
+
     document.getElementById("joined_days").innerHTML = Math.ceil((Date.now() - author_registering_time * 1000 + 1) / 86400000);
     
     if (user != null && user.id === author_id) {

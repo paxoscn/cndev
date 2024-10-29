@@ -174,7 +174,7 @@ fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(user_controller::grant_token);
     cfg.service(user_controller::list);
     cfg.service(user_controller::new);
-    cfg.service(user_controller::edit);
+    cfg.service(user_controller::load);
     cfg.service(user_controller::update);
     cfg.service(user_controller::delete);
     cfg.service(user_controller::send_sms);

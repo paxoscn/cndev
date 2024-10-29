@@ -228,7 +228,15 @@ async fn grant_token(
     };
 
     match user {
-        Some(user) => {
+        Some(mut user) => {
+            if user_created {
+                user.nick = Some(format!("user{}", user.id));
+    
+                Mutation::update_user_by_id(conn, user.id, &user)
+                .await
+                .expect("could not edit user");
+            }
+
             let nick = user.nick.unwrap_or(String::new());
             
             let my_claims = Claims {
@@ -243,18 +251,6 @@ async fn grant_token(
             let token = encode(&Header::new(Algorithm::HS256), &my_claims, &EncodingKey::from_secret(jwt_secret.as_ref())).unwrap();
             
             println!("{}", token);
-
-            if user_created {
-                let host = "127.0.0.1";
-                let username = "root";
-                let password = "root";
-
-                // Bad vsftpd may hang here. Restart vsftpd to fix.
-                let mut ftp = FtpStream::connect((host, 21)).unwrap();
-                ftp.login(username, password).unwrap();
-
-                publish_home_page(&mut ftp, &data, user.id, nick.as_str(), user.created_at.timestamp(), Vec::new(), 0, 1, 1, DEFAULT_POSTS_PER_PAGE).await;
-            }
         
             Ok(HttpResponse::Created().json(TokenGrantingResponse {
                 token: token,
@@ -268,24 +264,17 @@ async fn grant_token(
     }
 }
 
-#[get("/users/{id}")]
-async fn edit(data: web::Data<AppState>, id: web::Path<i32>) -> Result<HttpResponse, Error> {
+#[get("/users/{nick}")]
+async fn load(data: web::Data<AppState>, nick: web::Path<String>) -> Result<HttpResponse, Error> {
     let conn = &data.conn;
-    let template = &data.templates;
-    let id = id.into_inner();
+    let nick = nick.into_inner();
 
-    let user: user::Model = Query::find_user_by_id(conn, id)
-        .await
-        .expect("could not find user")
-        .unwrap_or_else(|| panic!("could not find user with id {id}"));
+    let user = Query::find_user_by_nick(conn, nick.clone())
+    .await
+    .expect("could not find user")
+    .unwrap_or_else(|| panic!("could not find user with nick {nick}"));
 
-    let mut ctx = tera::Context::new();
-    ctx.insert("user", &user);
-
-    let body = template
-        .render("edit.html.tera", &ctx)
-        .map_err(|_| error::ErrorInternalServerError("Template error"))?;
-    Ok(HttpResponse::Ok().content_type("text/html").body(body))
+    Ok(HttpResponse::Ok().json(user))
 }
 
 #[post("/users/{id}")]
@@ -298,7 +287,7 @@ async fn update(
     let form = user_form.into_inner();
     let id = id.into_inner();
 
-    Mutation::update_user_by_id(conn, id, form)
+    Mutation::update_user_by_id(conn, id, &form)
         .await
         .expect("could not edit user");
 

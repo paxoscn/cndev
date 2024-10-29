@@ -77,6 +77,12 @@ impl Query {
         User::find_by_id(id).one(db).await
     }
 
+    pub async fn find_user_by_nick(db: &DbConn, nick: String) -> Result<Option<user::Model>, DbErr> {
+        User::find()
+            .filter(user::Column::Nick.eq(nick))
+            .one(db).await
+    }
+
     /// If ok, returns (user models, num pages).
     pub async fn find_users_in_page(
         db: &DbConn,

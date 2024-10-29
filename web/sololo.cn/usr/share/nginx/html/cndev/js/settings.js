@@ -25,12 +25,8 @@ function onInit(user) {
 
     document.getElementById("avatar").addEventListener('click', openFileInput);
 
-    if (user.nick.length < 1) {
-        document.getElementById("nick_button").addEventListener('click', changeNick);
-    } else {
-        document.getElementById("nick").disabled = true;
-        document.getElementById("nick_button").disabled = true;
-    }
+    document.getElementById("nick_button").addEventListener('click', changeNick);
+
     document.getElementById("logout_button").addEventListener('click', logOut);
     document.getElementById("back_button").addEventListener('click', goBack);
 }
@@ -147,7 +143,7 @@ function changeNick() {
         return;
     }
 
-    var prompt = "要更改昵称为 " + nick + " 吗? (只允许更改一次昵称)";
+    var prompt = "要更改昵称为 " + nick + " 吗?";
 
     if (!confirm(prompt)) {
         return;

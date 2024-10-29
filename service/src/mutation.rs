@@ -178,7 +178,7 @@ impl Mutation {
     pub async fn update_user_by_id(
         db: &DbConn,
         id: i32,
-        form_data: user::Model,
+        form_data: &user::Model,
     ) -> Result<user::Model, DbErr> {
         let user: user::ActiveModel = User::find_by_id(id)
             .one(db)
@@ -188,10 +188,10 @@ impl Mutation {
 
         user::ActiveModel {
             id: user.id,
-            nick: Set(Some(form_data.name.to_owned())),
+            nick: Set(Some(form_data.nick.to_owned().unwrap())),
             name: Set(form_data.name.to_owned()),
-            tel: Set(form_data.name.to_owned()),
-            mail: Set(form_data.name.to_owned()),
+            tel: Set(form_data.tel.to_owned()),
+            mail: Set(form_data.mail.to_owned()),
             status: Set(form_data.status.to_owned()),
             created_at: Set(form_data.created_at.to_owned()),
             updated_at: Set(form_data.updated_at.to_owned()),
