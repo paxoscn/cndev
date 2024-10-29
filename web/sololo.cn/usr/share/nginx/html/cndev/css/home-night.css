@@ -206,6 +206,9 @@ legend {
     font-family: monospace;
     display: table-row;
 }
+.post span a {
+	color: lawngreen;
+}
 .post span a:visited {
 	color: lawngreen;
 }
