@@ -43,7 +43,7 @@ function fetchAuthorByNick(user) {
 function onAuthor(user) {
     tryApplyAvatar(author_id);
 
-    var urlSuffix = window.location.href.replace(/.*\//, "");
+    var urlSuffix = window.location.href.replace(/\/$/, "").replace(/.*\//, "");
     if (!/^\d+$/.test(urlSuffix)) {
         var nick = urlSuffix;
         document.getElementById("nick").innerHTML = nick;
@@ -111,6 +111,7 @@ function onDraftPosts(user, postsRes) {
         el.querySelector(".post_title").addEventListener('click', function (e) {
             var el = e.target;
             while (el.className !== "post") el = el.parentNode;
+            if (parseInt(el.getAttribute("_post_status")) === STATUS_DRAFT) return;
             window.location.href =
                     "/" + (el.getAttribute("_post_author_nick").length < 1 ? el.getAttribute("_post_author_id") : el.getAttribute("_post_author_nick")) +
                     "/" + (el.getAttribute("_post_sharing_path").length < 1 ? el.getAttribute("_post_id") : el.getAttribute("_post_sharing_path"));

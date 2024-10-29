@@ -206,3 +206,15 @@ body, html {
 textarea {
     display: none;
 }
+#settings_button, #login_button {
+    margin: 10px;
+    border: 2px solid white;
+	color: white;
+	background-color: darkorange;
+	cursor: pointer;
+}
+#settings_button:hover, #login_button:hover {
+    border: 2px solid darkorange;
+	color: darkorange;
+	background-color: white;
+}

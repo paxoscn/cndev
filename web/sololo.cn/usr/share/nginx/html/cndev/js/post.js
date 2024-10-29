@@ -41,10 +41,15 @@ const mermaid_ext = {
 window.onInit = function(user) {
     document.getElementById("content_main").style.display = "block";
 
+    author_nick = window.location.href.replace(/\/$/, "").replace(/.*\/([^\/]+)\/.*/, "$1");
+
     tryApplyAvatar(author_id);
 
     document.querySelector(".author_nick").setAttribute("href", "/" + (author_nick.length > 0 ? author_nick : author_id));
     document.querySelector(".author_nick").innerHTML = author_nick;
+    document.querySelector(".author_nick").addEventListener('click', function (e) {
+        window.location.href = "/" + author_nick;
+    });
 
     if (user != null && user.id == author_id) {
         document.querySelector(".edit").style.display = "block";

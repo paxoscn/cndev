@@ -267,14 +267,14 @@ legend {
     color: black;
 	background-color: lawngreen;
 }
-#settings_button {
+#settings_button, #login_button {
     margin: 10px;
     border: 2px solid black;
 	color: black;
 	background-color: lawngreen;
 	cursor: pointer;
 }
-#settings_button:hover {
+#settings_button:hover, #login_button:hover {
     border: 2px solid lawngreen;
 	color: lawngreen;
 	background-color: black;
