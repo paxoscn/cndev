@@ -133,7 +133,7 @@ function onDraftPosts(user, postsRes) {
                 var el = e.target;
                 while (el.className !== "post") el = el.parentNode;
 
-                if (confirm("是否发表 " + el.querySelector(".post_title > span").innerHTML + " ?")) {
+                if (confirm("是否发表 " + el.querySelector(".post_title > span > a").innerHTML + " ?")) {
                     const xhr = new XMLHttpRequest();
 
                     xhr.onreadystatechange = function() {

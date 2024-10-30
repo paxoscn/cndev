@@ -189,7 +189,7 @@ async fn update(
         }
     }
 
-    match shencha_text(post_saving_request.text.as_str()) {
+    match shencha_text(post_saving_request.text.replace("https://www.sololo.cn", "SOLOLO").as_str()) {
         Ok(true) => {}
         Ok(false) => {
             return Ok(HttpResponse::Forbidden().finish())
@@ -218,18 +218,18 @@ async fn update(
         }
     };
 
-    if saved_post.status == STATUS_PUBLISHED {
-        let page = 1;
-        let posts_per_page = DEFAULT_POSTS_PER_PAGE;
+    // if saved_post.status == STATUS_PUBLISHED {
+    //     let page = 1;
+    //     let posts_per_page = DEFAULT_POSTS_PER_PAGE;
     
-        let (posts, total_count, num_pages) = Query::find_posts_of_user_and_status_in_page(conn, user_id, STATUS_PUBLISHED, page, posts_per_page)
-            .await
-            .expect("Cannot find posts in page");
+    //     let (posts, total_count, num_pages) = Query::find_posts_of_user_and_status_in_page(conn, user_id, STATUS_PUBLISHED, page, posts_per_page)
+    //         .await
+    //         .expect("Cannot find posts in page");
     
-        publish_post_page(&data, user_id, user_nick, user_registering_time, &mut saved_post).await;
+    //     publish_post_page(&data, user_id, user_nick, user_registering_time, &mut saved_post).await;
     
-        publish_home_page(&data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
-    }
+    //     publish_home_page(&data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
+    // }
 
     Ok(HttpResponse::Ok().json(saved_post.try_into_model().unwrap()))
 }
