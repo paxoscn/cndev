@@ -10,21 +10,20 @@ mkdir -p /home/ecs-user/release/usr/share/nginx/html
 mkdir -p /home/ecs-user/release/usr/share/nginx/html/posts
 
 
-scp -r ./web/cn.dev/usr/local/server-cert.pem                          ecs-user@8.216.132.176:/home/ecs-user/release/usr/local/
-scp -r ./web/cn.dev/usr/local/server-key.pem                           ecs-user@8.216.132.176:/home/ecs-user/release/usr/local/
-scp -r ./web/cn.dev/cndev.conf                                         ecs-user@8.216.132.176:/home/ecs-user/release/etc/nginx/sites-enabled/
-scp -r ./web/cn.dev/usr/share/nginx/html/favicon.ico                   ecs-user@8.216.132.176:/home/ecs-user/release/usr/share/nginx/html/
-scp -r ./web/cn.dev/usr/share/nginx/html/index-and-homes/root/.html    ecs-user@8.216.132.176:/home/ecs-user/release/usr/share/nginx/html/
-scp -r ./web/cn.dev/usr/share/nginx/html/index-and-homes/root/404.html ecs-user@8.216.132.176:/home/ecs-user/release/usr/share/nginx/html/
-scp -r ./web/cn.dev/usr/share/nginx/html/posts/edit.html               ecs-user@8.216.132.176:/home/ecs-user/release/usr/share/nginx/html/posts/
+scp -r ./web/cn.dev/usr/local/server-cert.pem                               ecs-user@8.216.132.176:/home/ecs-user/release/usr/local/
+scp -r ./web/cn.dev/usr/local/server-key.pem                                ecs-user@8.216.132.176:/home/ecs-user/release/usr/local/
+scp -r ./web/cn.dev/cndev.conf                                              ecs-user@8.216.132.176:/home/ecs-user/release/etc/nginx/sites-enabled/
+scp -r ./web/cn.dev/usr/share/nginx/html/favicon.ico                        ecs-user@8.216.132.176:/home/ecs-user/release/usr/share/nginx/html/
+scp -r ./web/cn.dev/usr/share/nginx/html/index-and-homes/root/.html         ecs-user@8.216.132.176:/home/ecs-user/release/usr/share/nginx/html/
+scp -r ./web/cn.dev/usr/share/nginx/html/index-and-homes/root/settings.html ecs-user@8.216.132.176:/home/ecs-user/release/usr/share/nginx/html/
+scp -r ./web/cn.dev/usr/share/nginx/html/index-and-homes/root/404.html      ecs-user@8.216.132.176:/home/ecs-user/release/usr/share/nginx/html/
+scp -r ./web/cn.dev/usr/share/nginx/html/posts/edit.html                    ecs-user@8.216.132.176:/home/ecs-user/release/usr/share/nginx/html/posts/
 
 
 ssh ecs-user@8.216.132.176
 
 sudo cp ./release/usr/local/server-* /usr/local/
 sudo cp ./release/usr/share/nginx/html/favicon.ico /usr/share/nginx/html/
-sudo cp ./release/usr/share/nginx/html/.html /usr/share/nginx/html/
-sudo cp ./release/usr/share/nginx/html/404.html /usr/share/nginx/html/
 sudo cp -r ./release/usr/share/nginx/html/posts /usr/share/nginx/html/
 sudo cp ./release/etc/nginx/sites-enabled/cndev.conf /etc/nginx/sites-enabled/
 mkdir -p /home/ecs-user/bak/etc/nginx/sites-enabled
@@ -51,4 +50,5 @@ sudo systemctl status rsync.service
 
 sudo ln -s /home/ecs-user/sync /usr/share/nginx/html/home
 cp /home/ecs-user/release/usr/share/nginx/html/.html /home/ecs-user/sync/
+cp /home/ecs-user/release/usr/share/nginx/html/settings.html /home/ecs-user/sync/
 cp /home/ecs-user/release/usr/share/nginx/html/404.html /home/ecs-user/sync/

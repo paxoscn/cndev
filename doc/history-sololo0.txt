@@ -8,10 +8,10 @@ docker image tag cndev-builder:0.0.1 registry.cn-beijing.aliyuncs.com/cndev/cnde
 docker login --username= registry.cn-beijing.aliyuncs.com
 docker push registry.cn-beijing.aliyuncs.com/cndev/cndev-builder:0.0.1
 
-docker image build -t cndev:0.0.1 .
+docker image build -t cndev:0.0.2 .
 docker login --username= registry.cn-beijing.aliyuncs.com
-docker image tag cndev:0.0.1 registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.1
-docker push registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.1
+docker image tag cndev:0.0.2 registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.2
+docker push registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.2
 
 
 ssh ecs-user@112.126.25.213
@@ -70,7 +70,7 @@ sudo nginx -t
 sudo nginx -s reload
 
 sudo docker login --username= registry.cn-beijing.aliyuncs.com
-sudo docker pull registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.1
+sudo docker pull registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.2
 
 tee /home/ecs-user/Dockerfile-pg <<-'EOF'
 FROM postgres
@@ -122,6 +122,7 @@ sync{
 
 sudo systemctl restart lsyncd
 
-## sudo docker run --name cndev --rm --network cndev -v /home/ecs-user/cndev-tmp:/tmp -v /home/ecs-user/cndev-html:/cndev/web/cn.dev/usr/share/nginx/html/index-and-homes/root -v /usr/share/nginx/html/cndev/_avatars:/cndev/web/sololo.cn/usr/share/nginx/html/cndev/_avatars -v /usr/share/nginx/html/cndev/_post_images:/cndev/web/sololo.cn/usr/share/nginx/html/cndev/_post_images -v /usr/share/cndev-files/static:/cndev/api/static:ro -v /usr/share/cndev-files/templates:/cndev/api/templates:ro -p 8000:8000 -e LANG='zh_CN.utf8' -e LC_ALL='zh_CN.utf8' -e HOST='0.0.0.0' -e PORT='8000' -e DATABASE_URL='postgresql://cndev:@postgres/cndev' -e REDIS_URL='redis://redis:6379' -e ALIYUN_SMS_REGION="cn-hangzhou" -e ALIYUN_SMS_AK="" -e ALIYUN_SMS_TEMPLATE="" -e ALIYUN_SMS_SIGNATURE="" -e ALIYUN_SHENCHA_REGION="cn-hangzhou" -e ALIYUN_SHENCHA_AK="" -e APP_VERSION="1.0.0a" -e ALIYUN_SMS_SK="" -e ALIYUN_SHENCHA_SK="" registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.1
-sudo docker run -d --name cndev --rm --network cndev -v /home/ecs-user/cndev-tmp:/tmp -v /home/ecs-user/cndev-html:/cndev/web/cn.dev/usr/share/nginx/html/index-and-homes/root -v /usr/share/nginx/html/cndev/_avatars:/cndev/web/sololo.cn/usr/share/nginx/html/cndev/_avatars -v /usr/share/nginx/html/cndev/_post_images:/cndev/web/sololo.cn/usr/share/nginx/html/cndev/_post_images -v /usr/share/cndev-files/static:/cndev/api/static:ro -v /usr/share/cndev-files/templates:/cndev/api/templates:ro -p 8000:8000 -e LANG='zh_CN.utf8' -e LC_ALL='zh_CN.utf8' -e HOST='0.0.0.0' -e PORT='8000' -e DATABASE_URL='postgresql://cndev:@postgres/cndev' -e REDIS_URL='redis://redis:6379' -e ALIYUN_SMS_REGION="cn-hangzhou" -e ALIYUN_SMS_AK="" -e ALIYUN_SMS_TEMPLATE="" -e ALIYUN_SMS_SIGNATURE="" -e ALIYUN_SHENCHA_REGION="cn-hangzhou" -e ALIYUN_SHENCHA_AK="" -e APP_VERSION="1.0.0a" -e ALIYUN_SMS_SK="" -e ALIYUN_SHENCHA_SK="" registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.1
+sudo docker ps -a | grep 'cndev' | awk '{print "docker stop "$1}' | sudo sh
+## sudo docker run --name cndev --rm --network cndev -v /home/ecs-user/cndev-tmp:/tmp -v /home/ecs-user/cndev-html:/cndev/web/cn.dev/usr/share/nginx/html/index-and-homes/root -v /usr/share/nginx/html/cndev/_avatars:/cndev/web/sololo.cn/usr/share/nginx/html/cndev/_avatars -v /usr/share/nginx/html/cndev/_post_images:/cndev/web/sololo.cn/usr/share/nginx/html/cndev/_post_images -v /usr/share/cndev-files/static:/cndev/api/static:ro -v /usr/share/cndev-files/templates:/cndev/api/templates:ro -p 8000:8000 -e LANG='zh_CN.utf8' -e LC_ALL='zh_CN.utf8' -e HOST='0.0.0.0' -e PORT='8000' -e DATABASE_URL='postgresql://cndev:@postgres/cndev' -e REDIS_URL='redis://redis:6379' -e ALIYUN_SMS_REGION="cn-hangzhou" -e ALIYUN_SMS_AK="" -e ALIYUN_SMS_TEMPLATE="" -e ALIYUN_SMS_SIGNATURE="" -e ALIYUN_SHENCHA_REGION="cn-hangzhou" -e ALIYUN_SHENCHA_AK="" -e APP_VERSION="1.0.0a" -e ALIYUN_SMS_SK="" -e ALIYUN_SHENCHA_SK="" registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.2
+sudo docker run -d --name cndev --rm --network cndev -v /home/ecs-user/cndev-tmp:/tmp -v /home/ecs-user/cndev-html:/cndev/web/cn.dev/usr/share/nginx/html/index-and-homes/root -v /usr/share/nginx/html/cndev/_avatars:/cndev/web/sololo.cn/usr/share/nginx/html/cndev/_avatars -v /usr/share/nginx/html/cndev/_post_images:/cndev/web/sololo.cn/usr/share/nginx/html/cndev/_post_images -v /usr/share/cndev-files/static:/cndev/api/static:ro -v /usr/share/cndev-files/templates:/cndev/api/templates:ro -p 8000:8000 -e LANG='zh_CN.utf8' -e LC_ALL='zh_CN.utf8' -e HOST='0.0.0.0' -e PORT='8000' -e DATABASE_URL='postgresql://cndev:@postgres/cndev' -e REDIS_URL='redis://redis:6379' -e ALIYUN_SMS_REGION="cn-hangzhou" -e ALIYUN_SMS_AK="" -e ALIYUN_SMS_TEMPLATE="" -e ALIYUN_SMS_SIGNATURE="" -e ALIYUN_SHENCHA_REGION="cn-hangzhou" -e ALIYUN_SHENCHA_AK="" -e APP_VERSION="1.0.0a" -e ALIYUN_SMS_SK="" -e ALIYUN_SHENCHA_SK="" registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.2
 sudo docker logs cndev
