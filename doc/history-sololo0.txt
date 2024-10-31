@@ -1,0 +1,127 @@
+# Find some mirrors
+docker pull rust:1.81
+docker image build -t rust:1.81-updated -f Dockerfile-rust-updated .
+docker image tag rust:1.81-updated registry.cn-beijing.aliyuncs.com/cndev/rust:1.81-updated
+# It may fail many times for index.crates.io:443 connection errors.
+docker image build -t cndev-builder:0.0.1 -f Dockerfile-builder .
+docker image tag cndev-builder:0.0.1 registry.cn-beijing.aliyuncs.com/cndev/cndev-builder:0.0.1
+docker login --username= registry.cn-beijing.aliyuncs.com
+docker push registry.cn-beijing.aliyuncs.com/cndev/cndev-builder:0.0.1
+
+docker image build -t cndev:0.0.1 .
+docker login --username= registry.cn-beijing.aliyuncs.com
+docker image tag cndev:0.0.1 registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.1
+docker push registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.1
+
+
+ssh ecs-user@112.126.25.213
+
+sudo apt-get update
+sudo apt-get install nginx
+sudo systemctl enable nginx
+
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+## sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+sudo vi /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" |   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+# https://cr.console.aliyun.com/cn-beijing/instances/mirrors
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://pqp0d5lg.mirror.aliyuncs.com"]
+}
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+sudo docker run hello-world
+
+mkdir -p /home/ecs-user/release/usr/local
+mkdir -p /home/ecs-user/release/etc/nginx/sites-enabled
+mkdir -p /home/ecs-user/release/usr/share/nginx/html
+mkdir -p /home/ecs-user/release/usr/share/nginx/html/cndev
+
+
+scp -r ./web/sololo.cn/usr/local/www.sololo.cn_cert.pem ecs-user@112.126.25.213:/home/ecs-user/release/usr/local/
+scp -r ./web/sololo.cn/usr/local/www.sololo.cn_key.key  ecs-user@112.126.25.213:/home/ecs-user/release/usr/local/
+scp -r ./web/sololo.cn/sololocn.conf                    ecs-user@112.126.25.213:/home/ecs-user/release/etc/nginx/sites-enabled/
+scp -r ./web/sololo.cn/usr/share/nginx/html/cndev/css   ecs-user@112.126.25.213:/home/ecs-user/release/usr/share/nginx/html/cndev/
+scp -r ./web/sololo.cn/usr/share/nginx/html/cndev/fonts ecs-user@112.126.25.213:/home/ecs-user/release/usr/share/nginx/html/cndev/
+scp -r ./web/sololo.cn/usr/share/nginx/html/cndev/img   ecs-user@112.126.25.213:/home/ecs-user/release/usr/share/nginx/html/cndev/
+scp -r ./web/sololo.cn/usr/share/nginx/html/cndev/js    ecs-user@112.126.25.213:/home/ecs-user/release/usr/share/nginx/html/cndev/
+
+
+sudo cp ./release/usr/local/www.sololo.cn_* /usr/local/
+sudo cp -r ./release/usr/share/nginx/html/cndev/css /usr/share/nginx/html/cndev/
+sudo cp -r ./release/usr/share/nginx/html/cndev/fonts /usr/share/nginx/html/cndev/
+sudo cp -r ./release/usr/share/nginx/html/cndev/img /usr/share/nginx/html/cndev/
+sudo cp -r ./release/usr/share/nginx/html/cndev/js /usr/share/nginx/html/cndev/
+sudo mkdir -p /usr/share/nginx/html/cndev/_avatars
+sudo mkdir -p /usr/share/nginx/html/cndev/_post_images
+sudo chmod a+w /usr/share/nginx/html/cndev/_avatars
+sudo chmod a+w /usr/share/nginx/html/cndev/_post_images
+sudo cp ./release/etc/nginx/sites-enabled/sololocn.conf /etc/nginx/sites-enabled/
+mkdir -p /home/ecs-user/bak/etc/nginx/sites-enabled
+sudo mv /etc/nginx/sites-enabled/default /home/ecs-user/bak/etc/nginx/sites-enabled/
+sudo nginx -t
+sudo nginx -s reload
+
+sudo docker login --username= registry.cn-beijing.aliyuncs.com
+sudo docker pull registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.1
+
+tee /home/ecs-user/Dockerfile-pg <<-'EOF'
+FROM postgres
+RUN localedef -i zh_CN -c -f UTF-8 -A /usr/share/locale/locale.alias zh_CN.UTF-8
+ENV LANG=zh_CN.utf8
+EOF
+sudo docker build -f ./Dockerfile-pg -t postgres-zh .
+sudo mkdir /usr/share/pgdata
+sudo docker network create cndev
+sudo docker run -d --name postgres --rm --network cndev -v /usr/share/pgdata:/var/lib/postgresql/data -e LANG='zh_CN.utf8' -e LC_ALL='zh_CN.utf8' -e POSTGRES_PASSWORD='' -e POSTGRES_INITDB_ARGS='--encoding=UTF-8 --lc-collate=zh_CN.utf8 --lc-ctype=zh_CN.utf8' postgres-zh
+sudo docker exec -it postgres psql -U postgres
+\l
+CREATE USER cndev WITH PASSWORD '';
+CREATE DATABASE cndev OWNER cndev ENCODING 'UTF8' LC_COLLATE = 'zh_CN.utf8' LC_CTYPE = 'zh_CN.utf8';
+GRANT ALL PRIVILEGES ON DATABASE cndev TO cndev;
+\q
+
+sudo docker run -d --name redis --rm --network cndev -e LANG='zh_CN.utf8' -e LC_ALL='zh_CN.utf8' redis
+
+
+mkdir -p /home/ecs-user/release/usr/share/cndev-files
+
+
+scp -r ./api/static    ecs-user@112.126.25.213:/home/ecs-user/release/usr/share/cndev-files/
+scp -r ./api/templates ecs-user@112.126.25.213:/home/ecs-user/release/usr/share/cndev-files/
+
+
+sudo cp -r /home/ecs-user/release/usr/share/cndev-files /usr/share/
+
+ssh-keygen -t rsa
+cat ~/.ssh/id_rsa.pub
+sudo apt-get -y install lsyncd
+mkdir /home/ecs-user/cndev-html
+chmod a+w /home/ecs-user/cndev-html
+mkdir /home/ecs-user/cndev-tmp
+chmod a+w /home/ecs-user/cndev-tmp
+sudo mkdir /etc/lsyncd
+sudo vi /etc/lsyncd/lsyncd.conf.lua
+
+settings{
+    statusFile = "/tmp/lsyncd.stat",
+    statusInterval = 1,
+}
+sync{
+    default.rsync,
+    source="/home/ecs-user/cndev-html",
+    target="ecs-user@8.216.132.176::html",
+}
+
+sudo systemctl restart lsyncd
+
+## sudo docker run --name cndev --rm --network cndev -v /home/ecs-user/cndev-tmp:/tmp -v /home/ecs-user/cndev-html:/cndev/web/cn.dev/usr/share/nginx/html/index-and-homes/root -v /usr/share/nginx/html/cndev/_avatars:/cndev/web/sololo.cn/usr/share/nginx/html/cndev/_avatars -v /usr/share/nginx/html/cndev/_post_images:/cndev/web/sololo.cn/usr/share/nginx/html/cndev/_post_images -v /usr/share/cndev-files/static:/cndev/api/static:ro -v /usr/share/cndev-files/templates:/cndev/api/templates:ro -p 8000:8000 -e LANG='zh_CN.utf8' -e LC_ALL='zh_CN.utf8' -e HOST='0.0.0.0' -e PORT='8000' -e DATABASE_URL='postgresql://cndev:@postgres/cndev' -e REDIS_URL='redis://redis:6379' -e ALIYUN_SMS_REGION="cn-hangzhou" -e ALIYUN_SMS_AK="" -e ALIYUN_SMS_TEMPLATE="" -e ALIYUN_SMS_SIGNATURE="" -e ALIYUN_SHENCHA_REGION="cn-hangzhou" -e ALIYUN_SHENCHA_AK="" -e APP_VERSION="1.0.0a" -e ALIYUN_SMS_SK="" -e ALIYUN_SHENCHA_SK="" registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.1
+sudo docker run -d --name cndev --rm --network cndev -v /home/ecs-user/cndev-tmp:/tmp -v /home/ecs-user/cndev-html:/cndev/web/cn.dev/usr/share/nginx/html/index-and-homes/root -v /usr/share/nginx/html/cndev/_avatars:/cndev/web/sololo.cn/usr/share/nginx/html/cndev/_avatars -v /usr/share/nginx/html/cndev/_post_images:/cndev/web/sololo.cn/usr/share/nginx/html/cndev/_post_images -v /usr/share/cndev-files/static:/cndev/api/static:ro -v /usr/share/cndev-files/templates:/cndev/api/templates:ro -p 8000:8000 -e LANG='zh_CN.utf8' -e LC_ALL='zh_CN.utf8' -e HOST='0.0.0.0' -e PORT='8000' -e DATABASE_URL='postgresql://cndev:@postgres/cndev' -e REDIS_URL='redis://redis:6379' -e ALIYUN_SMS_REGION="cn-hangzhou" -e ALIYUN_SMS_AK="" -e ALIYUN_SMS_TEMPLATE="" -e ALIYUN_SMS_SIGNATURE="" -e ALIYUN_SHENCHA_REGION="cn-hangzhou" -e ALIYUN_SHENCHA_AK="" -e APP_VERSION="1.0.0a" -e ALIYUN_SMS_SK="" -e ALIYUN_SHENCHA_SK="" registry.cn-beijing.aliyuncs.com/cndev/cndev:0.0.1
+sudo docker logs cndev
