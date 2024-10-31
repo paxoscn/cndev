@@ -15,3 +15,10 @@ chrono = "0.4"
 [dependencies.sea-orm]
 #path = "../../../" # remove this line in your own project
 version = "1.0.0-rc.1" # sea-orm version
+features = [
+    "debug-print",
+    "runtime-async-std-rustls",
+    # "sqlx-mysql",
+    "sqlx-postgres",
+    # "sqlx-sqlite"
+]

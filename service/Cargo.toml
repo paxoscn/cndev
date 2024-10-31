@@ -14,10 +14,10 @@ entity = { path = "../entity" }
 version = "1.0.0-rc.1" # sea-orm version
 features = [
     "debug-print",
-    "runtime-async-std-native-tls",
+    "runtime-async-std-rustls",
     # "sqlx-mysql",
     "sqlx-postgres",
-    # "sqlx-sqlite",
+    # "sqlx-sqlite"
 ]
 
 [dev-dependencies]

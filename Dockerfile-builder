@@ -1,0 +1,26 @@
+FROM registry.cn-beijing.aliyuncs.com/cndev/rust:1.81-updated
+
+# Create appuser
+ENV USER=cndev
+ENV UID=10001
+
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/nonexistent" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid "${UID}" \
+    "${USER}"
+
+
+WORKDIR /cndev
+
+COPY ./api ./api
+COPY ./entity ./entity
+COPY ./migration ./migration
+COPY ./service ./service
+COPY ./src ./src
+COPY ./Cargo.* ./
+
+RUN cargo build --target x86_64-unknown-linux-musl --release; exit 0

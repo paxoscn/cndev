@@ -90,7 +90,7 @@ function onDraftPosts(user, postsRes) {
     draftPosts.forEach((draftPost) => {
         draftPostsHtml += `
 <div class="post" _post_id="` + draftPost.id + `" _post_author_id="` + user.id + `" _post_author_nick="` + user.nick + `" _post_sharing_path="` + draftPost.sharing_path + `" _post_status="` + draftPost.status + `">
-    <div class="post_title"><span>` + draftPost.title + `</span></div>
+    <div class="post_title"><span><a>` + draftPost.title + `</a></span></div>
     <div class="post_panel">
         <span class="post_updating"><button class="post_updating_button" disabled="true">编辑</button></span>
         <span class="post_publishing"><button class="post_publishing_button" disabled="true">发表</button></span>
