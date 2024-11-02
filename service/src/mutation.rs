@@ -14,14 +14,20 @@ impl Mutation {
         title: String,
         sharing_path: String,
         tags: String,
+        category: i16,
+        the_abstract: String,
         text: String,
+        references: String,
     ) -> Result<post::ActiveModel, DbErr> {
         post::ActiveModel {
             user_id: Set(user_id),
             title: Set(title.to_owned()),
             sharing_path: Set(sharing_path.to_owned()),
             tags: Set(tags.to_owned()),
+            category: Set(category),
+            the_abstract: Set(the_abstract.to_owned()),
             text: Set(text.to_owned()),
+            references: Set(references.to_owned()),
             status: Set(STATUS_DRAFT),
             ..Default::default()
         }
@@ -36,7 +42,10 @@ impl Mutation {
         title: String,
         sharing_path: String,
         tags: String,
+        category: i16,
+        the_abstract: String,
         text: String,
+        references: String,
     ) -> Result<post::Model, DbErr> {
         let post: post::ActiveModel = Post::find()
             .filter(post::Column::Id.eq(id))
@@ -53,7 +62,10 @@ impl Mutation {
             title: Set(title),
             sharing_path: Set(sharing_path),
             tags: Set(tags),
+            category: Set(category),
+            the_abstract: Set(the_abstract),
             text: Set(text),
+            references: Set(references),
             status: Set(post.status.as_ref().to_owned()),
             created_at: Set(post.created_at.as_ref().to_owned()),
             updated_at: Set(Utc::now().naive_utc().to_owned()),

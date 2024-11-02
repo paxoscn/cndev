@@ -11,29 +11,75 @@
 	</head>
 	<body bgcolor="#000">
 		<div id="content">
-			<p>
+			<div>
 				<button id="button_saving">保存</button>
 				<button id="button_cancelling">取消</button>
 				<input id="id" type="hidden" />
-			</p>
-			<p>
+			</div>
+			<div>
 				<span class="prompt">标题:</span>
 				<input id="title" placeholder="标题" maxlength="100" />
-			</p>
-			<p id="p_sharing_path">
+				<span>
+					<label>
+						<input id="category_article" type="radio" name="category" class="category" value="1" />
+						文章
+					</label>
+					<label>
+						<input id="category_note" type="radio" name="category" class="category" value="2" />
+						随笔
+					</label>
+				</span>
+			</div>
+			<div id="p_sharing_path">
 				<span class="prompt">友好路径:</span>
 				<span id="sharing_url_prefix"></span>
 				<input id="sharing_path" placeholder="用于分享的友好路径" maxlength="100" />
 				<button id="button_url_copying">📋</button>
 				<button id="button_path_generating">根据标题生成</button>
-			</p>
-			<p>
+			</div>
+			<div>
 				<span class="prompt">标签:</span>
-				<input id="tags" />
-			</p>
-			<p>
-				<textarea id="text"></textarea>
-			</p>
+				<input id="tags" size="50" />
+			</div>
+			<div id="p_abstract">
+				<div>
+					<span class="prompt">摘要:</span>
+				</div>
+				<div>
+					<textarea id="the_abstract" cols="100" rows="5"></textarea>
+				</div>
+			</div>
+			<div>
+				<div>
+					<span class="prompt">正文:</span>
+				</div>
+				<div>
+					<textarea id="text"></textarea>
+				</div>
+			</div>
+			<div>
+				<div>
+					<span class="prompt">参考资料:</span>
+					<button id="button_reference_adding">+</button>
+				</div>
+				<div class="references"></div>
+				<div class="reference_templates">
+					<div class="reference">
+						<span>
+							标题:
+							<input class="reference_title" size="70" />
+						</span>
+						<span>
+							链接:
+							<input class="reference_url" size="70" placeholder="https://" />
+						</span>
+						<span>
+							<button class="button_reference_removing">⛔</button>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="div_bottom"></div>
 		</div>
 	</body>
 </html>

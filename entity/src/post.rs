@@ -5,6 +5,9 @@ pub const STATUS_DRAFT: i16 = 1;
 pub const STATUS_PUBLISHED: i16 = 2;
 pub const STATUS_DELETED: i16 = 3;
 
+pub const CATEGORY_ARTICLE: i16 = 1;
+pub const CATEGORY_NOTE: i16 = 2;
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel, Deserialize, Serialize)]
 #[sea_orm(table_name = "posts")]
 pub struct Model {
@@ -15,8 +18,11 @@ pub struct Model {
     pub title: String,
     pub sharing_path: String,
     pub tags: String,
+    pub category: i16,
+    pub the_abstract: String,
     #[sea_orm(column_type = "Text")]
     pub text: String,
+    pub references: String,
     pub status: i16,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,

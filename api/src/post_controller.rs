@@ -43,7 +43,10 @@ struct PostSavingRequest {
     title: String,
     sharing_path: String,
     tags: String,
+    category: i16,
+    the_abstract: String,
     text: String,
+    references: String,
 }
 
 #[derive(Debug, MultipartForm)]
@@ -122,7 +125,10 @@ async fn create(
             post_saving_request.title,
             post_saving_request.sharing_path,
             post_saving_request.tags,
-            post_saving_request.text).await {
+            post_saving_request.category,
+            post_saving_request.the_abstract,
+            post_saving_request.text,
+            post_saving_request.references).await {
         Ok(saved_post) => saved_post,
         Err(e) => {
             println!("Database error: {:?}", e);
@@ -177,7 +183,7 @@ async fn update(
     let id = id.into_inner();
     let post_saving_request = post_saving_request_json.into_inner();
 
-    match shencha_text(format!("{} {} {}", post_saving_request.title, post_saving_request.sharing_path, post_saving_request.tags).as_str()) {
+    match shencha_text(format!("{} {} {} {} {}", post_saving_request.title, post_saving_request.sharing_path, post_saving_request.tags, post_saving_request.the_abstract, post_saving_request.references).as_str()) {
         Ok(true) => {}
         Ok(false) => {
             return Ok(HttpResponse::Forbidden().finish())
@@ -209,7 +215,10 @@ async fn update(
             post_saving_request.title,
             post_saving_request.sharing_path,
             post_saving_request.tags,
-            post_saving_request.text).await {
+            post_saving_request.category,
+            post_saving_request.the_abstract,
+            post_saving_request.text,
+            post_saving_request.references).await {
         Ok(saved_post) => saved_post,
         Err(e) => {
             println!("Database error: {:?}", e);

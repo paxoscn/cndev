@@ -25,6 +25,10 @@ button {
     padding: 10px;
 }
 
+#content > div {
+    padding: 5px;
+}
+
 #button_saving {
     background-color: chartreuse;
 }
@@ -45,10 +49,25 @@ button {
     width: 300px;
 }
 
-#tags {
-    width: 300px;
-}
-
 #button_path_copying {
     border-width: 0px;
+}
+
+.reference_templates > div {
+    display: none;
+}
+
+#button_reference_adding {
+    border-width: 0px;
+    border-radius: 50%;
+    background-color: greenyellow;
+}
+
+.button_reference_removing {
+    border-width: 0px;
+    background-color: transparent;
+}
+
+.div_bottom {
+    margin-top: 100px;
 }

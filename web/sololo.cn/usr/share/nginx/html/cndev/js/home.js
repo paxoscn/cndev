@@ -261,7 +261,7 @@ function addPost() {
 
     xhr.setRequestHeader("Authorization", "Bearer " + user.token);
 
-    xhr.send(JSON.stringify({ "title": "(草稿)", "sharing_path": "", "tags": "", "text": "" }));
+    xhr.send(JSON.stringify({ "title": "(草稿)", "sharing_path": "", "tags": "", "category": 1, "the_abstract": "", "text": "", "references": "" }));
 }
 
 function showToast(message) {

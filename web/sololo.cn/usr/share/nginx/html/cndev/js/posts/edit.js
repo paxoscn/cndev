@@ -26,7 +26,33 @@ function onPost(user, post) {
     document.getElementById("sharing_url_prefix").innerHTML = "https://cn.dev/" + (user.nick.length > 0 ? user.nick : user.id) + "/";
     document.getElementById("sharing_path").value = post.sharing_path;
     document.getElementById("tags").value = post.tags;
+    document.querySelector(".category[value=\"" + post.category + "\"]").checked = true;
+    document.getElementById("the_abstract").value = post.the_abstract;
     document.getElementById("text").value = post.text;
+    if (post.references.length > 0) {
+        var referenceLines = post.references.split("\n");
+        referenceLines.forEach((referenceLine) => {
+            var url = referenceLine.substring(0, referenceLine.indexOf(" "));
+            var title = referenceLine.substring(referenceLine.indexOf(" ") + 1);
+            var referenceDiv = document.querySelector(".reference_templates > .reference").cloneNode(true);
+            referenceDiv.querySelector(".reference_title").value = title;
+            referenceDiv.querySelector(".reference_url").value = url;
+            referenceDiv.querySelector(".button_reference_removing").addEventListener("click", removeReference);
+            document.querySelector(".references").appendChild(referenceDiv);
+        });
+    }
+
+    document.querySelectorAll(".category").forEach((category) => {
+        category.addEventListener("change", (e) => {
+            document.getElementById("p_abstract").style.display = e.target.getAttribute("value") == "1" ? "" : "none";
+        });
+    });
+
+    document.getElementById("button_reference_adding").addEventListener("click", (e) => {
+        var referenceDiv = document.querySelector(".reference_templates > .reference").cloneNode(true);
+        referenceDiv.querySelector(".button_reference_removing").addEventListener("click", removeReference);
+        document.querySelector(".references").appendChild(referenceDiv);
+    });
 
     simplemde = new SimpleMDE({
         element: document.getElementById("text"),
@@ -90,7 +116,19 @@ function savePost() {
     post.title = document.getElementById("title").value;
     post.sharing_path = document.getElementById("sharing_path").value;
     post.tags = document.getElementById("tags").value;
+    post.category = parseInt(document.querySelector(".category:checked").value);
+    post.the_abstract = document.getElementById("the_abstract").value;
     post.text = simplemde.value();
+    post.references = "";
+    var referenceDivs = document.querySelectorAll(".reference");
+    referenceDivs.forEach((referenceDiv) => {
+        var url = referenceDiv.querySelector(".reference_url").value.trim();
+        var title = referenceDiv.querySelector(".reference_title").value.trim();
+        if (url.length > 0 || title.length > 0) {
+            var referenceLine = url + " " + title;
+            post.references += (post.references.length > 0 ? "\n" : "") + referenceLine;
+        }
+    });
 
     const xhr = new XMLHttpRequest();
 
@@ -229,6 +267,15 @@ function uploadImage(cmDoc, blob) {
     formData.append("image", blob);
 
     xhr.send(formData);
+}
+
+function removeReference(e) {
+    var referenceDiv = e.target.parentNode.parentNode;
+    var title = referenceDiv.querySelector(".reference_title").value;
+    var url = referenceDiv.querySelector(".reference_url").value;
+    if ((title.length < 1 && url.length < 1) || confirm("确定要移除参考资料 " + (title.length > 0 ? title : "") + (url.length > 0 ? (" (" + url + ")") : "") + " 吗?")) {
+        document.querySelector(".references").removeChild(referenceDiv);
+    }
 }
 
 function loadStylesheet(url) {
