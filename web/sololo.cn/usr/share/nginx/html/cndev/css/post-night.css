@@ -154,6 +154,10 @@ body, html {
     top: 0px;
     left: 0px;
     padding: 20px;
+	max-width: 100%;
+}
+#canvas img {
+	max-width: 100%;
 }
 #title_and_author {
     font-family: monospace;
