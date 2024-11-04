@@ -3,7 +3,7 @@ use ::entity::{post, post::Entity as Post};
 use ::entity::{user, user::Entity as User};
 use sea_orm::*;
 
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 
 pub struct Mutation;
 

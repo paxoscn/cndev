@@ -1,5 +1,5 @@
 
-use std::{io::Read, ops::Index};
+use std::io::Read;
 
 use cndev_service::{
     Mutation, Query,
@@ -27,7 +27,7 @@ use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 
 use std::net::IpAddr;
 
-use chrono::{format, DateTime, Utc};
+use chrono::Utc;
 
 use crate::post_controller::publish_home_page;
 
@@ -87,7 +87,6 @@ struct AvatarUploadingResponse {
 
 #[get("/users/")]
 async fn list(req: HttpRequest, data: web::Data<AppState>) -> Result<HttpResponse, Error> {
-    let template = &data.templates;
     let conn = &data.conn;
 
     // get params
@@ -96,22 +95,12 @@ async fn list(req: HttpRequest, data: web::Data<AppState>) -> Result<HttpRespons
     let page = params.page.unwrap_or(1);
     let users_per_page = params.users_per_page.unwrap_or(DEFAULT_POSTS_PER_PAGE);
 
-    let (users, num_pages) = Query::find_users_in_page(conn, page, users_per_page)
+    let (users, _num_pages) = Query::find_users_in_page(conn, page, users_per_page)
         .await
         .expect("Cannot find users in page");
 
     // Return users as JSON
     Ok(HttpResponse::Ok().json(users))
-    // let mut ctx = tera::Context::new();
-    // ctx.insert("users", &users);
-    // ctx.insert("page", &page);
-    // ctx.insert("users_per_page", &users_per_page);
-    // ctx.insert("num_pages", &num_pages);
-
-    // let body = template
-    //     .render("index.html.tera", &ctx)
-    //     .map_err(|_| error::ErrorInternalServerError("Template error"))?;
-    // Ok(HttpResponse::Ok().content_type("text/html").body(body))
 }
 
 #[get("/users/new")]
@@ -152,7 +141,7 @@ async fn send_sms(
     let aliyun_sms_ak = env::var("ALIYUN_SMS_AK").expect("ALIYUN_SMS_AK is not set in .env file");
     let aliyun_sms_sk = env::var("ALIYUN_SMS_SK").expect("ALIYUN_SMS_SK is not set");
 
-    let mut aliyun_sms_client = alibaba_cloud_sdk_rust::services::dysmsapi::Client::NewClientWithAccessKey(
+    let aliyun_sms_client = alibaba_cloud_sdk_rust::services::dysmsapi::Client::NewClientWithAccessKey(
         aliyun_sms_region.as_str(),
         aliyun_sms_ak.as_str(),
         aliyun_sms_sk.as_str(),
@@ -313,7 +302,6 @@ async fn delete(data: web::Data<AppState>, id: web::Path<i32>) -> Result<HttpRes
 #[put("/settings/avatar")]
 pub async fn upload_avatar(
     req: HttpRequest,
-    data: web::Data<AppState>,
     MultipartForm(form): MultipartForm<AvatarUploadingForm>,
 ) -> Result<HttpResponse, Error> {
     if form.avatar.size < 1 || form.avatar.size > 1024 * 100 {
@@ -509,9 +497,9 @@ fn check_sms_sending_times(redis: &redis::Client, client_ip: &str) -> Option<Res
         Ok(mut conn) => {
             let sms_sending_times: i32 = conn.get(format!("sms_sending_times-{}", client_ip)).unwrap_or(0);
 
-            // if sms_sending_times > 5 {
-            //     return Some(Ok(HttpResponse::Forbidden().finish()));
-            // }
+            if sms_sending_times > 5 {
+                return Some(Ok(HttpResponse::Forbidden().finish()));
+            }
 
             conn.incr(format!("sms_sending_times-{}", client_ip), 1).unwrap_or(());
 

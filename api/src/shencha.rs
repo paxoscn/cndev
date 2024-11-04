@@ -27,7 +27,7 @@ impl BaseRequestExt for ShenchaRequest {
 }
 
 impl ShenchaRequest {
-    pub fn BuildQueryParams(&mut self) {
+    pub fn build_query_params(&mut self) {
         self.addQueryParam("Service", &self.Service.to_owned());
         self.addQueryParam("ServiceParameters", &self.ServiceParameters.to_owned());
     }
@@ -49,7 +49,7 @@ pub struct ShenchasResponseData {
     pub labels: String,
 }
 
-pub fn CreateShenchaRequest() -> ShenchaRequest {
+pub fn create_shencha_request() -> ShenchaRequest {
     let mut request = ShenchaRequest::default();
     // Find the version at https://help.aliyun.com/document_detail/467828.html
     // or https://next.api.aliyun.com/api/Green/2022-03-02/TextModeration?lang=JAVA&RegionId=cn-beijing&tab=CLI
@@ -66,22 +66,21 @@ pub fn shencha(
     service_type: &str,
     content: &str
 ) -> Result<bool, std::io::Error> {
-    let mut request = CreateShenchaRequest();
+    let mut request = create_shencha_request();
     request.Service = String::from(service_type);
 
     let mut service_parameters = ShenchaRequestServiceParameters::default();
     service_parameters.content = String::from(content);
     request.ServiceParameters = serde_json::to_string(&service_parameters).unwrap();
 
-    request.BuildQueryParams();
+    request.build_query_params();
     
-    let mut response = ShenchasResponse::default();
-    let mut baseResponse = alibaba_cloud_sdk_rust::sdk::responses::BaseResponse::default();
+    let mut base_response = alibaba_cloud_sdk_rust::sdk::responses::BaseResponse::default();
 
-    aliyun_client.DoAction(&mut request.rpcRequest, &mut baseResponse)?;
+    aliyun_client.DoAction(&mut request.rpcRequest, &mut base_response)?;
 
-    let res_str = String::from_utf8(baseResponse.httpContentBytes).unwrap();
-    response = serde_json::from_str(res_str.as_str())?;
+    let res_str = String::from_utf8(base_response.httpContentBytes).unwrap();
+    let response: ShenchasResponse = serde_json::from_str(res_str.as_str())?;
 
     match response.Code {
         200 => {

@@ -3,30 +3,25 @@ use cndev_service::{
     Mutation, Query,
 };
 
-use entity::{post::{self, STATUS_PUBLISHED}, user};
-use migration::sea_orm::ColIdx;
+use entity::post::{self, STATUS_PUBLISHED};
 use serde::{Serialize, Deserialize};
 use crate::controllers::AppState;
-
-use cndev_service::sea_orm::DatabaseConnection;
 
 use std::env;
 
 use crate::shencha;
 
-use std::io::Cursor;
-
 use cndev_service::sea_orm::TryIntoModel;
 
 use actix_web::{
-    error, get, post, put, delete, web, Error, HttpRequest, HttpResponse, Result, http::header::HeaderValue,
+    get, post, put, delete, web, Error, HttpRequest, HttpResponse, Result,
 };
 
 use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 
-use std::{io::Read, ops::Index};
+use std::io::Read;
 use std::io::Write;
 
 const DEFAULT_POSTS_PER_PAGE: u64 = 100;
@@ -86,7 +81,7 @@ async fn list(req: HttpRequest, data: web::Data<AppState>) -> Result<HttpRespons
     let page = params.page.unwrap_or(1);
     let posts_per_page = params.posts_per_page.unwrap_or(DEFAULT_POSTS_PER_PAGE);
 
-    let (mut posts, total_count, num_pages) = Query::find_posts_of_user_and_status_in_page(conn, user_id, params.status, page, posts_per_page)
+    let (mut posts, _total_count, num_pages) = Query::find_posts_of_user_and_status_in_page(conn, user_id, params.status, page, posts_per_page)
         .await
         .expect("Cannot find posts in page");
 
@@ -177,8 +172,6 @@ async fn update(
             return Ok(HttpResponse::NotFound().finish())
         }
     };
-    let user_nick = req.headers().get("nick").unwrap().to_str().unwrap();
-    let user_registering_time = req.headers().get("reg").unwrap().to_str().unwrap().parse::<i64>().unwrap();
 
     let id = id.into_inner();
     let post_saving_request = post_saving_request_json.into_inner();
@@ -209,7 +202,7 @@ async fn update(
 
     let conn = &data.conn;
     
-    let mut saved_post = match Mutation::update_post_by_id(conn,
+    let saved_post = match Mutation::update_post_by_id(conn,
             user_id,
             id,
             post_saving_request.title,
@@ -246,7 +239,6 @@ async fn update(
 #[put("/posts/{id}/images")]
 pub async fn upload_image(
     req: HttpRequest,
-    data: web::Data<AppState>,
     id: web::Path<i32>,
     MultipartForm(form): MultipartForm<ImageUploadingForm>,
 ) -> Result<HttpResponse, Error> {
@@ -360,7 +352,7 @@ async fn unpublish(
         .await
         .expect("Cannot find posts in page");
 
-    unpublish_post_page(&data, user_id, user_nick, user_registering_time, &mut saved_post).await;
+    unpublish_post_page(user_id, &mut saved_post).await;
 
     publish_home_page(&data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
 
@@ -442,7 +434,7 @@ async fn delete(
         .await
         .expect("Cannot find posts in page");
 
-    unpublish_post_page(&data, user_id, user_nick, user_registering_time, &mut saved_post).await;
+    unpublish_post_page(user_id, &mut saved_post).await;
     // publish_post_page(&data, user_id, user_nick, user_registering_time, &mut saved_post).await;
 
     publish_home_page(&data, user_id, user_nick, user_registering_time, posts, total_count, num_pages, page, posts_per_page).await;
@@ -491,8 +483,7 @@ async fn publish_post_page(data: &web::Data<AppState>, author_id: i32, author_ni
     false
 }
 
-async fn unpublish_post_page(data: &web::Data<AppState>, author_id: i32, author_nick: &str, author_registering_time: i64,
-        post: &mut post::Model) -> bool {
+async fn unpublish_post_page(author_id: i32, post: &mut post::Model) -> bool {
     println!("Unpublishing post page {} for user {}", post.id, author_id);
 
     let _ = std::fs::remove_file(format!("./web/cn.dev/usr/share/nginx/html/index-and-homes/root/{}/{}.html", author_id, post.id));

@@ -35,16 +35,7 @@ impl MigrationTrait for Migration {
 #[derive(DeriveIden)]
 enum Posts {
     Table,
-    Id,
-    UserId,
-    Title,
-    SharingPath,
-    Tags,
     Category,
     TheAbstract,
-    Text,
     References,
-    Status,
-    CreatedAt,
-    UpdatedAt,
 }
