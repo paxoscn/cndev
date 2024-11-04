@@ -92,7 +92,7 @@ pub fn shencha(
                     } else {
                         println!("failed res = {}", res_str);
 
-                        Ok(false)
+                        Ok(!res_str.replace("\"labels\":\"ad\"", "").contains("\"labels\":"))
                     }
                 },
                 None => {

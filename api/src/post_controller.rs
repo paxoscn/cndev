@@ -195,7 +195,7 @@ async fn update(
         }
     }
 
-    match shencha_text(post_saving_request.text.replace("https://www.sololo.cn", "SOLOLO").replace("https://dev.sololo.cn", "SOLOLO").as_str()) {
+    match shencha_text(post_saving_request.text.as_str()) {
         Ok(true) => {}
         Ok(false) => {
             return Ok(HttpResponse::Forbidden().finish())
