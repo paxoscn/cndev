@@ -229,6 +229,19 @@ function onDraftPosts(user, postsRes) {
                 }
             });
         }
+
+        if (/(Android|webOS|iPhone|iPod|BlackBerry)/.test(navigator.userAgent)) {
+            document.querySelector("#panel").style.display = "none";
+            document.querySelector("#content").style.width = "90vw";
+            document.querySelector("#content").style.height = "90vh";
+            document.querySelector("legend").style.display = "none";
+
+            document.querySelectorAll(".post").forEach((post) => {
+                post.querySelector(".post_title").style.fontSize = "30px";
+                post.querySelector(".post_panel").style.display = "none";
+                post.querySelector(".post_time").style.display = "none";
+            });
+        }
     });
 }
 

@@ -1,4 +1,6 @@
 import mermaid from 'https://www.sololo.cn/cndev/js/mermaid/mermaid.esm.min.js';
+
+
     
 mermaid.initialize({ startOnLoad: false });
 
@@ -59,4 +61,10 @@ window.onInit = function(user) {
 
     var raw_text = new DOMParser().parseFromString(document.getElementById("post_text").innerHTML, "text/html").documentElement.textContent;
     document.getElementById("post_rendered_text").innerHTML = marked.parse(raw_text);
+
+    hljs.highlightAll();
+
+    if (/(Android|webOS|iPhone|iPod|BlackBerry)/.test(navigator.userAgent)) {
+        document.querySelector("#panel").style.display = "none";
+    }
 };

@@ -161,6 +161,14 @@ body, html {
 }
 #title_and_author {
     font-family: monospace;
+}
+#title {
+	margin-right: 50px;
+	max-width: 100%;
+    display: flex;
+    align-items: flex-end;
+}
+#author {
     display: flex;
     align-items: flex-end;
 }
@@ -170,7 +178,7 @@ body, html {
 }
 .edit {
     display: none;
-    font-size: 15px;
+    font-size: 25px;
     padding-left: 5px;
     padding-bottom: 5px;
 }
@@ -182,7 +190,6 @@ body, html {
     text-decoration-line: underline;
 }
 .author_avatar_and_nick {
-    padding-left: 50px;
 	color: darkorange;
     font-size: 30px;
     cursor: pointer;
@@ -191,8 +198,8 @@ body, html {
     text-decoration-line: underline;
 }
 #avatar {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     image-rendering: pixelated;
     background-color: skyblue;
     border-radius: 20%;
@@ -210,12 +217,23 @@ body, html {
 textarea {
     display: none;
 }
+#post_rendered_text a {
+	color: darkorange;
+}
+#post_rendered_text a:visited {
+	color: darkorange;
+}
+#post_rendered_text img {
+	border: 1px solid darkorange;
+	border-radius: 5px;
+}
 #settings_button, #login_button {
     margin: 10px;
     border: 2px solid white;
 	color: white;
 	background-color: darkorange;
 	cursor: pointer;
+    font-size: 25px;
 }
 #settings_button:hover, #login_button:hover {
     border: 2px solid darkorange;

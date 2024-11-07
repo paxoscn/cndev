@@ -2,19 +2,18 @@
 
 
 
-{% block title %}
-{% endblock title %}
+{% block title %}{{ post.title }}{% endblock title %}
 
 
 
 {% block scripts %}
+<link rel="stylesheet" href="https://www.sololo.cn/cndev/css/highlight.min.css">
 <script>
 var author_id = "{{ author_id }}";
 var author_nick = "{{ author_nick }}";
-var post_text = ```
-```
 </script>
 <script src="https://www.sololo.cn/cndev/js/marked.min.js"></script>
+<script src="https://www.sololo.cn/cndev/js/highlight.11.9.min.js"></script>
 <script type="module" src="https://www.sololo.cn/cndev/js/post.js"></script>
 {% endblock scripts %}
 
@@ -32,12 +31,18 @@ var post_text = ```
 </div>
 <div id="canvas">
   <div id="title_and_author">
-    <div class="post_title left">{{ post.title }}</div>
-    <div class="edit left"><a href="/posts/{{ post.id }}">编辑</a></div>
-    <div class="author_avatar_and_nick" class="left">
-      <img id="avatar" src="https://www.sololo.cn/cndev/img/avatar-pixel.png" alt="nick" /><span class="author_nick"></span>
+    <div id="title" class="left">
+      <div class="post_title left">{{ post.title }}</div>
+      <div class="edit left"><a href="/posts/{{ post.id }}">编辑</a></div>
+      <div class="clear"></div>
     </div>
-    <div class="post_time left">{{ post.updated_at_formatted }}</div>
+    <div id="author" class="left">
+      <div class="author_avatar_and_nick left">
+        <img id="avatar" src="https://www.sololo.cn/cndev/img/avatar-pixel.png" alt="nick" /><span class="author_nick"></span>
+      </div>
+      <div class="post_time left">{{ post.updated_at_formatted }}</div>
+      <div class="clear"></div>
+    </div>
     <div class="clear"></div>
   </div>
   <hr />

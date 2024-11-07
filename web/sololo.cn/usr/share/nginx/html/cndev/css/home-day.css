@@ -281,6 +281,7 @@ legend {
 	color: white;
 	background-color: darkorange;
 	cursor: pointer;
+    font-size: 25px;
 }
 #settings_button:hover, #login_button:hover {
     border: 2px solid darkorange;
