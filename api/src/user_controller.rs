@@ -534,7 +534,7 @@ fn cache_and_send_sms(redis: &redis::Client, mut aliyun_sms_client: alibaba_clou
             request.TemplateCode = aliyun_sms_template;
             request.TemplateParam = format!("{{\"code\":\"{}\"}}", sms_code);
             let response = aliyun_sms_client.SendSms(&mut request).ok()?;
-            println!("{:?}", &response);
+            println!("SMS response {:?}", &response);
 
             return None;
         }

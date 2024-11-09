@@ -288,7 +288,7 @@ function loadStylesheet(url) {
 }
 
 window.addEventListener('load', function () {
-    var postId = window.location.href.replace(/.*\//, "");
+    var postId = window.location.href.replace(/.*\//, "").replace(/\?.*/, "");
 
     var user_json = localStorage.getItem('user');
     var user = "";

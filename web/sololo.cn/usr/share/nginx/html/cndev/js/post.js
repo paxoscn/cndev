@@ -43,7 +43,7 @@ const mermaid_ext = {
 window.onInit = function(user) {
     document.getElementById("content_main").style.display = "block";
 
-    author_nick = window.location.href.replace(/\/$/, "").replace(/.*\/([^\/]+)\/.*/, "$1");
+    author_nick = window.location.href.replace(/\/$/, "").replace(/.*\/([^\/]+)\/.*/, "$1").replace(/\?.*/, "");
 
     tryApplyAvatar(author_id);
 
@@ -54,7 +54,9 @@ window.onInit = function(user) {
     });
 
     if (user != null && user.id == author_id) {
-        document.querySelector(".edit").style.display = "block";
+        if (!/(Android|webOS|iPhone|iPod|BlackBerry)/.test(navigator.userAgent)) {
+            document.querySelector(".edit").style.display = "block";
+        }
     }
 
     if (category == "1") {
@@ -84,9 +86,5 @@ window.onInit = function(user) {
         });
     } else {
         document.querySelector(".no_references").style.display = "block";
-    }
-
-    if (/(Android|webOS|iPhone|iPod|BlackBerry)/.test(navigator.userAgent)) {
-        document.querySelector("#panel").style.display = "none";
     }
 };

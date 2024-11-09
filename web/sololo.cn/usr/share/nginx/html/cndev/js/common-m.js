@@ -1,6 +1,6 @@
 var currentHour = new Date().getHours();
 var period = currentHour >= 7 && currentHour < 19 ? "day" : "night";
-loadStylesheet("https://www.sololo.cn/cndev/css/" + document.getElementsByTagName("HTML")[0].getAttribute("template") + "-" + period + ".css");
+loadStylesheet("https://www.sololo.cn/cndev/css/" + document.getElementsByTagName("HTML")[0].getAttribute("template") + "-m-" + period + ".css");
 
 function sendCode() {
     var tel = document.getElementById("tel").innerHTML;
@@ -116,8 +116,6 @@ function verifyCode() {
 }
 
 function showLog(lines) {
-    document.getElementById("outputs").style.visibility = "visible";
-
     if (lines.length >= 3) document.getElementById("output_line_1").innerHTML = lines[lines.length - 3];
     if (lines.length >= 2) document.getElementById("output_line_2").innerHTML = lines[lines.length - 2];
     if (lines.length >= 1) document.getElementById("output_line_3").innerHTML = lines[lines.length - 1];

@@ -24,15 +24,6 @@ var references = `
 
 
 {% block content %}
-<div id="panel">
-  <div id="login_div" class="left">
-    <button id="login_button">登录</button>
-  </div>
-  <div id="settings_div" class="left">
-    <button id="settings_button">设置</button>
-  </div>
-  <div class="clear"></div>
-</div>
 <div id="canvas">
   <div id="title_and_author">
     <div id="title" class="left">
@@ -70,5 +61,14 @@ var references = `
       <a class="reference_link" href="" target="_blank"></a>
     </div>
   </div>
+</div>
+<div id="panel">
+  <div id="login_div" class="left">
+    <button id="login_button">登录</button>
+  </div>
+  <div id="settings_div" class="left">
+    <button id="settings_button">设置</button>
+  </div>
+  <div class="clear"></div>
 </div>
 {% endblock content %}
