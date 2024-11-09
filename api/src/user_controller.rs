@@ -406,7 +406,7 @@ async fn change_nick(
 
     let nick_changing_request = nick_changing_request_json.into_inner();
     let user_new_nick = nick_changing_request.nick.trim().to_lowercase()
-            .replace(|c: char| c != '-' && !c.is_alphanumeric() && !c.is_numeric(), "");
+            .replace(|c: char| c != '-' && c != '<' && c != '>' && !c.is_alphanumeric() && !c.is_numeric(), "");
 
     // Not allowed to be empty.
     if user_new_nick.len() < 1 || user_new_nick == user_old_nick {

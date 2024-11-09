@@ -240,3 +240,24 @@ textarea {
 	color: lawngreen;
 	background-color: black;
 }
+.prompt {
+	font-weight: bold;
+}
+.the_abstract_container {
+	display: none;
+}
+.references {
+	margin-bottom: 50px;
+}
+.reference_templates {
+	display: none;
+}
+.no_references {
+	display: none;
+}
+.reference a {
+	color: lawngreen;
+}
+.reference a:visited {
+	color: lawngreen;
+}

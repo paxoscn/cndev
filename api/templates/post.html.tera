@@ -11,6 +11,10 @@
 <script>
 var author_id = "{{ author_id }}";
 var author_nick = "{{ author_nick }}";
+var category = "{{ post.category }}";
+var references = `
+{{ post.references }}
+`;
 </script>
 <script src="https://www.sololo.cn/cndev/js/marked.min.js"></script>
 <script src="https://www.sololo.cn/cndev/js/highlight.11.9.min.js"></script>
@@ -46,9 +50,25 @@ var author_nick = "{{ author_nick }}";
     <div class="clear"></div>
   </div>
   <hr />
+  <div class="the_abstract_container">
+    <div class="prompt">摘要:</div>
+    <div class="the_abstract">{{ post.the_abstract }}</div>
+  </div>
+  <hr class="the_abstract_hr" />
+  <div class="text_prompt prompt">正文:</div>
   <div id="post_text_container">
     <textarea id="post_text">{{ post.text }}</textarea>
   </div>
   <div id="post_rendered_text"></div>
+  <hr />
+  <div class="prompt">参考链接:</div>
+  <div class="references">
+    <div class="no_references">(无)</div>
+  </div>
+  <div class="reference_templates">
+    <div class="reference">
+      <a class="reference_link" href="" target="_blank"></a>
+    </div>
+  </div>
 </div>
 {% endblock content %}

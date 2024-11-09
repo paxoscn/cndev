@@ -448,13 +448,19 @@ async fn publish_post_page(data: &web::Data<AppState>, author_id: i32, author_ni
 
     post.updated_at_formatted = post.updated_at.format("%Y-%m-%d %H:%M:%S").to_string();
 
+    let mut post_to_render = post.clone();
+    post_to_render.title = escape_html(&post_to_render.title);
+    post_to_render.the_abstract = escape_html(post_to_render.the_abstract.as_str());
+    post_to_render.text = escape_html(post_to_render.text.as_str());
+    post_to_render.references = escape_html(post_to_render.references.as_str());
+
     let template = &data.templates;
     let mut ctx = tera::Context::new();
     ctx.insert("template", "post");
     ctx.insert("author_id", &author_id);
     ctx.insert("author_nick", author_nick);
     ctx.insert("author_registering_time", &format!("{}", author_registering_time));
-    ctx.insert("post", post);
+    ctx.insert("post", &post_to_render);
 
     let body = template
         .render("post.html.tera", &ctx)
@@ -498,6 +504,8 @@ pub async fn publish_home_page(data: &web::Data<AppState>, author_id: i32, autho
     println!("Publishing home page for user {}", author_id);
 
     for post in posts.iter_mut() {
+        post.title = escape_html(&post.title);
+
         post.updated_at_formatted = post.updated_at.format("%Y-%m-%d %H:%M:%S").to_string();
 
         if post.sharing_path.len() > 0 {
@@ -536,6 +544,10 @@ pub async fn publish_home_page(data: &web::Data<AppState>, author_id: i32, autho
     println!("Published home page of user {}", author_id);
 
     false
+}
+
+fn escape_html(html: &str) -> String {
+    html.replace("<", "&lt;").replace(">", "&gt;")
 }
 
 fn shencha_text(text: &str) -> Result<bool, std::io::Error> {
