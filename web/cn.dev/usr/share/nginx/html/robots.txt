@@ -1,0 +1,8 @@
+sitemap: https://cn.dev/sitemaps.xml
+
+
+User-agent: *
+Allow: /
+
+# File last updated July 4, 2024
+

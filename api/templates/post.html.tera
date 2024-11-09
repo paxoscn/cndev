@@ -7,6 +7,19 @@
 
 
 {% block scripts %}
+<meta name="description" content="{{ post.the_abstract }}">
+<meta name="robots" content="all">
+<meta content="zh_CN" property="og:locale">
+<meta content="cn.dev" property="og:site_name">
+<meta content="website" property="og:type">
+<meta content="https://cn.dev/{{ author_nick }}/{{ post.id_or_sharing_path }}" property="og:url">
+<meta content="{{ post.title }} - {{ author_nick }} - cn.dev" property="og:title">
+<meta content="{{ post.the_abstract }}" property="og:description">
+<meta content="https://cn.dev/mergen" property="og:see_also">
+<link href="https://cn.dev/{{ author_nick }}/{{ post.id_or_sharing_path }}" rel="canonical">
+<link href="https://cn.dev" rel="home">
+<link type="text/plain" href="https://cn.dev/humans.txt" rel="author">
+
 <link rel="stylesheet" href="https://www.sololo.cn/cndev/css/highlight.min.css">
 <script>
 var author_id = "{{ author_id }}";

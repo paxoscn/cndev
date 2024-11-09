@@ -448,9 +448,15 @@ async fn publish_post_page(data: &web::Data<AppState>, author_id: i32, author_ni
 
     post.updated_at_formatted = post.updated_at.format("%Y-%m-%d %H:%M:%S").to_string();
 
+    if post.sharing_path.len() > 0 {
+        post.id_or_sharing_path = format!("{}", post.sharing_path);
+    } else {
+        post.id_or_sharing_path = format!("{}", post.id);
+    }
+
     let mut post_to_render = post.clone();
     post_to_render.title = escape_html(&post_to_render.title);
-    post_to_render.the_abstract = escape_html(post_to_render.the_abstract.as_str());
+    post_to_render.the_abstract = escape_html(post_to_render.the_abstract.as_str()).replace("\n", "").replace("\r", "");
     post_to_render.text = escape_html(post_to_render.text.as_str());
     post_to_render.references = escape_html(post_to_render.references.as_str());
 
